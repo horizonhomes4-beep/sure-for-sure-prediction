@@ -1,0 +1,3798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Sure for Sure — Admin Dashboard</title>
+
+<style>
+:root{
+  --green:#19e66b;
+  --green2:#08b653;
+  --bg:#050906;
+  --panel:#0b1510;
+  --panel2:#101d15;
+  --text:#f4fff7;
+  --muted:#91a198;
+  --border:rgba(255,255,255,.08);
+  --gold:#ffd447;
+  --red:#ff5364;
+  --blue:#4da3ff;
+}
+
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+}
+
+body{
+  font-family:Arial,Helvetica,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+}
+
+button,
+input,
+select,
+textarea{
+  font:inherit;
+}
+
+button{
+  cursor:pointer;
+}
+
+a{
+  color:inherit;
+  text-decoration:none;
+}
+
+.nav{
+  height:72px;
+  position:sticky;
+  top:0;
+  z-index:100;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:0 4%;
+  background:rgba(5,9,6,.95);
+  border-bottom:1px solid var(--border);
+  backdrop-filter:blur(15px);
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-size:20px;
+  font-weight:900;
+}
+
+.brand img{
+  width:42px;
+  height:42px;
+  object-fit:contain;
+  border-radius:9px;
+}
+
+.nav-right{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.btn{
+  border:0;
+  border-radius:9px;
+  padding:10px 15px;
+  font-weight:800;
+  transition:.2s;
+}
+
+.btn:hover{
+  transform:translateY(-1px);
+}
+
+.green{
+  background:var(--green);
+  color:#031008;
+}
+
+.dark{
+  background:#142119;
+  color:white;
+  border:1px solid var(--border);
+}
+
+.red{
+  background:rgba(255,83,100,.12);
+  color:var(--red);
+  border:1px solid rgba(255,83,100,.2);
+}
+
+.gold{
+  background:rgba(255,212,71,.12);
+  color:var(--gold);
+  border:1px solid rgba(255,212,71,.2);
+}
+
+.blue{
+  background:rgba(77,163,255,.12);
+  color:var(--blue);
+  border:1px solid rgba(77,163,255,.2);
+}
+
+.container{
+  width:92%;
+  max-width:1500px;
+  margin:auto;
+  padding:35px 0 70px;
+}
+
+.header{
+  margin-bottom:30px;
+}
+
+.header .label{
+  display:inline-block;
+  color:var(--green);
+  background:rgba(25,230,107,.08);
+  border:1px solid rgba(25,230,107,.16);
+  padding:6px 11px;
+  border-radius:20px;
+  font-size:10px;
+  font-weight:900;
+  margin-bottom:10px;
+}
+
+.header h1{
+  font-size:35px;
+}
+
+.header p{
+  color:var(--muted);
+  margin-top:5px;
+}
+
+/* STATS */
+
+.stats{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:14px;
+  margin-bottom:30px;
+}
+
+.stat{
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:15px;
+  padding:19px;
+}
+
+.stat small{
+  color:var(--muted);
+  font-size:11px;
+}
+
+.stat strong{
+  display:block;
+  font-size:30px;
+  margin-top:4px;
+}
+
+.stat.green-stat strong{
+  color:var(--green);
+}
+
+.stat.gold-stat strong{
+  color:var(--gold);
+}
+
+.stat.red-stat strong{
+  color:var(--red);
+}
+
+/* TABS */
+
+.dashboard-tabs{
+  display:flex;
+  gap:7px;
+  overflow:auto;
+  margin-bottom:20px;
+}
+
+.dashboard-tabs button{
+  white-space:nowrap;
+  border:1px solid var(--border);
+  color:#b8c5bc;
+  background:#0c1710;
+  padding:11px 17px;
+  border-radius:9px;
+  font-weight:800;
+}
+
+.dashboard-tabs button.active{
+  color:#031008;
+  background:var(--green);
+  border-color:var(--green);
+}
+
+/* PANELS */
+
+.panel{
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:17px;
+  padding:23px;
+  margin-bottom:20px;
+}
+
+.panel-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:15px;
+  margin-bottom:20px;
+}
+
+.panel-head h2{
+  font-size:21px;
+}
+
+.panel-head p{
+  color:var(--muted);
+  font-size:12px;
+  margin-top:4px;
+}
+
+/* FORM */
+
+.form-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:13px;
+}
+
+.form-group{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+
+.form-group.full{
+  grid-column:1/-1;
+}
+
+.form-group label{
+  color:#afbbb3;
+  font-size:11px;
+  font-weight:800;
+}
+
+.input{
+  width:100%;
+  border:1px solid var(--border);
+  outline:none;
+  background:#07100a;
+  color:white;
+  border-radius:9px;
+  padding:12px;
+}
+
+.input:focus{
+  border-color:var(--green);
+}
+
+textarea.input{
+  min-height:90px;
+  resize:vertical;
+}
+
+.form-actions{
+  grid-column:1/-1;
+  display:flex;
+  gap:9px;
+  margin-top:5px;
+}
+
+/* FILTER */
+
+.filters{
+  display:grid;
+  grid-template-columns:1.5fr 1fr 1fr 1fr;
+  gap:10px;
+  margin-bottom:18px;
+}
+
+/* TABLE */
+
+.table-wrap{
+  overflow-x:auto;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  min-width:1050px;
+}
+
+th{
+  color:#718078;
+  text-align:left;
+  font-size:10px;
+  text-transform:uppercase;
+  padding:12px;
+  border-bottom:1px solid var(--border);
+}
+
+td{
+  padding:13px 12px;
+  border-bottom:1px solid rgba(255,255,255,.05);
+  font-size:12px;
+}
+
+tr:hover td{
+  background:rgba(255,255,255,.015);
+}
+
+.team-cell{
+  font-weight:800;
+}
+
+.muted{
+  color:var(--muted);
+}
+
+.badge{
+  display:inline-block;
+  border-radius:20px;
+  padding:5px 8px;
+  font-size:9px;
+  font-weight:900;
+}
+
+.badge-free{
+  color:var(--green);
+  background:rgba(25,230,107,.1);
+}
+
+.badge-vip{
+  color:var(--gold);
+  background:rgba(255,212,71,.1);
+}
+
+.badge-both{
+  color:var(--blue);
+  background:rgba(77,163,255,.1);
+}
+
+.badge-pending{
+  color:var(--gold);
+  background:rgba(255,212,71,.08);
+}
+
+.badge-won{
+  color:var(--green);
+  background:rgba(25,230,107,.08);
+}
+
+.badge-lost{
+  color:var(--red);
+  background:rgba(255,83,100,.08);
+}
+
+.badge-expired{
+  color:var(--red);
+  background:rgba(255,83,100,.1);
+}
+
+.actions{
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+}
+
+.action-btn{
+  border:0;
+  border-radius:7px;
+  padding:7px 10px;
+  font-size:10px;
+  font-weight:900;
+}
+
+.edit{
+  color:#8ec5ff;
+  background:rgba(77,163,255,.1);
+}
+
+.delete{
+  color:var(--red);
+  background:rgba(255,83,100,.1);
+}
+
+.result-btn{
+  color:var(--gold);
+  background:rgba(255,212,71,.1);
+}
+
+/* USER CARDS */
+
+.user-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+}
+
+.user-card{
+  background:#0d1911;
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:18px;
+}
+
+.user-card.vip-active{
+  border-color:rgba(255,212,71,.3);
+  box-shadow:0 0 0 1px rgba(255,212,71,.04);
+}
+
+.user-top{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+}
+
+.user-name{
+  font-weight:900;
+}
+
+.user-email{
+  color:var(--muted);
+  font-size:11px;
+  margin-top:3px;
+  word-break:break-all;
+}
+
+.user-meta{
+  margin-top:15px;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  color:var(--muted);
+  font-size:10px;
+}
+
+.user-meta div{
+  background:#09120c;
+  border-radius:8px;
+  padding:9px;
+}
+
+.user-meta strong{
+  display:block;
+  color:#dce8df;
+  margin-top:3px;
+  font-size:11px;
+}
+
+.user-actions{
+  display:flex;
+  gap:7px;
+  margin-top:15px;
+}
+
+.payment-box{
+  margin-top:14px;
+  padding:12px;
+  border-radius:10px;
+  background:#08120b;
+  border:1px solid rgba(255,255,255,.05);
+}
+
+.payment-box small{
+  color:var(--muted);
+  font-size:9px;
+  text-transform:uppercase;
+}
+
+.payment-box strong{
+  display:block;
+  font-size:11px;
+  margin-top:4px;
+  word-break:break-word;
+}
+
+/* TOAST */
+
+.toast{
+  position:fixed;
+  right:20px;
+  bottom:20px;
+  z-index:5000;
+  padding:14px 18px;
+  border-radius:10px;
+  background:#14251a;
+  border:1px solid rgba(25,230,107,.2);
+  color:white;
+  display:none;
+  box-shadow:0 15px 40px rgba(0,0,0,.4);
+}
+
+.toast.show{
+  display:block;
+}
+
+/* MODAL */
+
+.modal{
+  position:fixed;
+  inset:0;
+  z-index:3000;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  background:rgba(0,0,0,.78);
+}
+
+.modal.show{
+  display:flex;
+}
+
+.modal-box{
+  width:100%;
+  max-width:500px;
+  max-height:90vh;
+  overflow:auto;
+  background:#0c1710;
+  border:1px solid var(--border);
+  border-radius:18px;
+  padding:25px;
+}
+
+.modal-head{
+  display:flex;
+  justify-content:space-between;
+  margin-bottom:20px;
+}
+
+.modal-head h2{
+  font-size:20px;
+}
+
+.close{
+  border:0;
+  background:none;
+  color:white;
+  font-size:25px;
+}
+
+.modal-actions{
+  display:flex;
+  gap:8px;
+  margin-top:18px;
+}
+
+.modal-info{
+  background:#08120b;
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:12px;
+  margin-bottom:16px;
+}
+
+.modal-info strong{
+  display:block;
+  margin-bottom:3px;
+}
+
+.modal-info span{
+  color:var(--muted);
+  font-size:11px;
+}
+
+/* EMPTY */
+
+.empty{
+  padding:45px 20px;
+  text-align:center;
+  color:var(--muted);
+}
+
+.loading{
+  color:var(--green);
+  text-align:center;
+  padding:30px;
+}
+
+/* MOBILE */
+
+@media(max-width:1050px){
+
+  .stats{
+    grid-template-columns:repeat(3,1fr);
+  }
+
+  .user-grid{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+  .filters{
+    grid-template-columns:1fr 1fr;
+  }
+}
+
+@media(max-width:700px){
+
+  .nav{
+    padding:0 4%;
+  }
+
+  .brand span{
+    display:none;
+  }
+
+  .container{
+    width:94%;
+  }
+
+  .stats{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .form-grid{
+    grid-template-columns:1fr;
+  }
+
+  .form-group.full{
+    grid-column:auto;
+  }
+
+  .form-actions{
+    grid-column:auto;
+    flex-wrap:wrap;
+  }
+
+  .filters{
+    grid-template-columns:1fr;
+  }
+
+  .user-grid{
+    grid-template-columns:1fr;
+  }
+
+  .header h1{
+    font-size:28px;
+  }
+
+  .user-meta{
+    grid-template-columns:1fr;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<header class="nav">
+
+  <a href="index.html" class="brand">
+    <img src="logo.png" alt="Sure for Sure">
+    <span>Sure for Sure</span>
+  </a>
+
+  <div class="nav-right">
+    <a href="index.html" class="btn dark">
+      View Website
+    </a>
+  </div>
+
+</header>
+
+
+<main class="container">
+
+  <div class="header">
+
+    <div class="label">
+      ADMIN CONTROL CENTER
+    </div>
+
+    <h1>
+      Sure for Sure Dashboard
+    </h1>
+
+    <p>
+      Manage predictions, results, users, VIP members and testimonials.
+    </p>
+
+  </div>
+
+
+  <!-- =========================
+       STATISTICS
+  ========================= -->
+
+  <section class="stats">
+
+    <div class="stat green-stat">
+      <small>Total Users</small>
+      <strong id="totalUsers">0</strong>
+    </div>
+
+    <div class="stat gold-stat">
+      <small>Active VIP Members</small>
+      <strong id="totalVIP">0</strong>
+    </div>
+
+    <div class="stat">
+      <small>Total Predictions</small>
+      <strong id="totalPredictions">0</strong>
+    </div>
+
+    <div class="stat green-stat">
+      <small>Won</small>
+      <strong id="totalWon">0</strong>
+    </div>
+
+    <div class="stat red-stat">
+      <small>Lost</small>
+      <strong id="totalLost">0</strong>
+    </div>
+
+  </section>
+
+
+  <!-- =========================
+       TABS
+  ========================= -->
+
+  <div class="dashboard-tabs">
+
+    <button
+      class="active"
+      onclick="showTab('predictionsTab',this)">
+      ⚽ Predictions
+    </button>
+
+    <button
+      onclick="showTab('usersTab',this)">
+      👥 Users
+    </button>
+
+    <button
+      onclick="showTab('testimonialsTab',this)">
+      ⭐ Testimonials
+    </button>
+
+  </div>
+
+
+  <!-- ==================================================
+       PREDICTIONS TAB
+  ================================================== -->
+
+  <section id="predictionsTab">
+
+    <div class="panel">
+
+      <div class="panel-head">
+
+        <div>
+          <h2 id="predictionFormTitle">
+            Post New Prediction
+          </h2>
+
+          <p>
+            Add a new football game or edit an existing one.
+          </p>
+        </div>
+
+        <button
+          class="btn dark"
+          onclick="clearPredictionForm()">
+          + New
+        </button>
+
+      </div>
+
+
+      <form
+        id="predictionForm"
+        class="form-grid"
+        onsubmit="savePrediction(event)">
+
+        <input
+          type="hidden"
+          id="predictionId">
+
+
+        <div class="form-group">
+
+          <label>Week</label>
+
+          <input
+            id="week"
+            class="input"
+            placeholder="e.g. Week 1"
+            required>
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label>Country</label>
+
+          <input
+            id="country"
+            class="input"
+            placeholder="e.g. England"
+            required>
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label>League</label>
+
+          <input
+            id="league"
+            class="input"
+            placeholder="e.g. Premier League"
+            required>
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label>Match Date & Time</label>
+
+          <input
+            id="matchDate"
+            class="input"
+            type="datetime-local"
+            required>
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label>Home Team</label>
+
+          <input
+            id="homeTeam"
+            class="input"
+            placeholder="Home team"
+            required>
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label>Away Team</label>
+
+          <input
+            id="awayTeam"
+            class="input"
+            placeholder="Away team"
+            required>
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label>Prediction</label>
+
+          <input
+            id="prediction"
+            class="input"
+            placeholder="e.g. Over 1.5 Goals"
+            required>
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label>Visibility</label>
+
+          <select id="visibility" class="input">
+
+            <option value="free">
+              Free Only
+            </option>
+
+            <option value="vip">
+              VIP Only
+            </option>
+
+            <option value="both">
+              Free + VIP
+            </option>
+
+          </select>
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label>Result</label>
+
+          <select id="result" class="input">
+
+            <option value="Pending">
+              Pending
+            </option>
+
+            <option value="Won">
+              Won
+            </option>
+
+            <option value="Lost">
+              Lost
+            </option>
+
+            <option value="Void">
+              Void
+            </option>
+
+          </select>
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label>Match Result / Score</label>
+
+          <input
+            id="score"
+            class="input"
+            placeholder="e.g. 2 - 1">
+
+        </div>
+
+
+        <div class="form-group full">
+
+          <label>Admin Note</label>
+
+          <textarea
+            id="adminNote"
+            class="input"
+            placeholder="Optional note about this prediction"></textarea>
+
+        </div>
+
+
+        <div class="form-actions">
+
+          <button
+            class="btn green"
+            type="submit"
+            id="savePredictionBtn">
+            Publish Prediction
+          </button>
+
+          <button
+            class="btn dark"
+            type="button"
+            onclick="clearPredictionForm()">
+            Cancel / Clear
+          </button>
+
+        </div>
+
+      </form>
+
+    </div>
+
+
+    <div class="panel">
+
+      <div class="panel-head">
+
+        <div>
+          <h2>All Predictions</h2>
+
+          <p>
+            Edit, update results or delete games.
+          </p>
+        </div>
+
+      </div>
+
+
+      <div class="filters">
+
+        <input
+          id="searchPredictions"
+          class="input"
+          placeholder="Search team, league or country..."
+          oninput="renderPredictions()">
+
+        <select
+          id="weekFilter"
+          class="input"
+          onchange="renderPredictions()">
+
+          <option value="all">
+            All Weeks
+          </option>
+
+        </select>
+
+
+        <select
+          id="visibilityFilter"
+          class="input"
+          onchange="renderPredictions()">
+
+          <option value="all">
+            All Access
+          </option>
+
+          <option value="free">
+            Free
+          </option>
+
+          <option value="vip">
+            VIP
+          </option>
+
+          <option value="both">
+            Both
+          </option>
+
+        </select>
+
+
+        <select
+          id="resultFilter"
+          class="input"
+          onchange="renderPredictions()">
+
+          <option value="all">
+            All Results
+          </option>
+
+          <option value="Pending">
+            Pending
+          </option>
+
+          <option value="Won">
+            Won
+          </option>
+
+          <option value="Lost">
+            Lost
+          </option>
+
+          <option value="Void">
+            Void
+          </option>
+
+        </select>
+
+      </div>
+
+
+      <div class="table-wrap">
+
+        <table>
+
+          <thead>
+
+            <tr>
+              <th>Match</th>
+              <th>League</th>
+              <th>Week</th>
+              <th>Prediction</th>
+              <th>Access</th>
+              <th>Result</th>
+              <th>Actions</th>
+            </tr>
+
+          </thead>
+
+          <tbody id="predictionTable">
+
+            <tr>
+              <td colspan="7" class="loading">
+                Loading predictions...
+              </td>
+            </tr>
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- ==================================================
+       USERS TAB
+  ================================================== -->
+
+  <section
+    id="usersTab"
+    style="display:none">
+
+    <div class="panel">
+
+      <div class="panel-head">
+
+        <div>
+          <h2>All Registered Users</h2>
+
+          <p>
+            Confirm payment and activate or remove VIP access.
+          </p>
+        </div>
+
+        <button
+          class="btn dark"
+          onclick="loadUsers()">
+          ↻ Refresh Users
+        </button>
+
+      </div>
+
+
+      <div class="filters">
+
+        <input
+          id="searchUsers"
+          class="input"
+          placeholder="Search name or email..."
+          oninput="renderUsers()">
+
+        <select
+          id="userStatusFilter"
+          class="input"
+          onchange="renderUsers()">
+
+          <option value="all">
+            All Users
+          </option>
+
+          <option value="vip">
+            Active VIP
+          </option>
+
+          <option value="free">
+            Free
+          </option>
+
+          <option value="expired">
+            Expired VIP
+          </option>
+
+        </select>
+
+      </div>
+
+
+      <div
+        class="user-grid"
+        id="userGrid">
+
+        <div class="empty">
+          Loading users...
+        </div>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- ==================================================
+       TESTIMONIALS TAB
+  ================================================== -->
+
+  <section
+    id="testimonialsTab"
+    style="display:none">
+
+    <div class="panel">
+
+      <div class="panel-head">
+
+        <div>
+          <h2>Testimonials</h2>
+
+          <p>
+            Approve, edit or delete testimonials.
+          </p>
+        </div>
+
+      </div>
+
+
+      <div id="testimonialAdminList">
+
+        <div class="empty">
+          Loading testimonials...
+        </div>
+
+      </div>
+
+    </div>
+
+  </section>
+
+</main>
+
+
+<!-- ==================================================
+     USER / VIP MODAL
+================================================== -->
+
+<div class="modal" id="userModal">
+
+  <div class="modal-box">
+
+    <div class="modal-head">
+
+      <div>
+        <h2>VIP User Management</h2>
+
+        <p
+          style="
+            color:#91a198;
+            font-size:11px;
+            margin-top:4px;
+          ">
+          Activate VIP only after confirming payment.
+        </p>
+      </div>
+
+      <button
+        class="close"
+        onclick="closeModal('userModal')">
+        ×
+      </button>
+
+    </div>
+
+
+    <input
+      type="hidden"
+      id="selectedUserId">
+
+
+    <div class="modal-info">
+
+      <strong id="modalUserName">
+        User
+      </strong>
+
+      <span id="modalUserEmail">
+        -
+      </span>
+
+    </div>
+
+
+    <div class="form-group">
+
+      <label>
+        VIP Access
+      </label>
+
+      <select
+        id="userVIP"
+        class="input"
+        onchange="toggleVIPFields()">
+
+        <option value="false">
+          Free User — No VIP Access
+        </option>
+
+        <option value="true">
+          VIP Active — Grant VIP Access
+        </option>
+
+      </select>
+
+    </div>
+
+
+    <br>
+
+
+    <div id="vipFields">
+
+      <div class="form-group">
+
+        <label>
+          VIP Expiry Date
+        </label>
+
+        <input
+          id="vipExpiry"
+          class="input"
+          type="date">
+
+      </div>
+
+
+      <br>
+
+
+      <div class="form-group">
+
+        <label>
+          Payment Status
+        </label>
+
+        <select
+          id="paymentStatus"
+          class="input">
+
+          <option value="confirmed">
+            Payment Confirmed
+          </option>
+
+          <option value="pending">
+            Payment Pending
+          </option>
+
+          <option value="not_paid">
+            Not Paid
+          </option>
+
+        </select>
+
+      </div>
+
+
+      <br>
+
+
+      <div class="form-group">
+
+        <label>
+          Payment Reference
+        </label>
+
+        <input
+          id="paymentReference"
+          class="input"
+          placeholder="e.g. transaction ID">
+
+      </div>
+
+
+      <br>
+
+
+      <div class="form-group">
+
+        <label>
+          Admin Note
+        </label>
+
+        <textarea
+          id="vipAdminNote"
+          class="input"
+          placeholder="e.g. Payment confirmed via bank transfer"></textarea>
+
+      </div>
+
+    </div>
+
+
+    <div class="modal-actions">
+
+      <button
+        class="btn green"
+        onclick="saveUser()">
+        Save VIP Access
+      </button>
+
+      <button
+        class="btn dark"
+        onclick="closeModal('userModal')">
+        Cancel
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- ==================================================
+     RESULT MODAL
+================================================== -->
+
+<div class="modal" id="resultModal">
+
+  <div class="modal-box">
+
+    <div class="modal-head">
+
+      <div>
+        <h2>Update Result</h2>
+
+        <p style="color:#91a198;font-size:11px;margin-top:4px">
+          Update the result after the match.
+        </p>
+      </div>
+
+      <button
+        class="close"
+        onclick="closeModal('resultModal')">
+        ×
+      </button>
+
+    </div>
+
+
+    <input
+      type="hidden"
+      id="resultPredictionId">
+
+
+    <div class="form-group">
+
+      <label>
+        Result
+      </label>
+
+      <select
+        id="quickResult"
+        class="input">
+
+        <option value="Pending">
+          Pending
+        </option>
+
+        <option value="Won">
+          Won
+        </option>
+
+        <option value="Lost">
+          Lost
+        </option>
+
+        <option value="Void">
+          Void
+        </option>
+
+      </select>
+
+    </div>
+
+
+    <br>
+
+
+    <div class="form-group">
+
+      <label>
+        Final Score
+      </label>
+
+      <input
+        id="quickScore"
+        class="input"
+        placeholder="e.g. 2 - 1">
+
+    </div>
+
+
+    <div class="modal-actions">
+
+      <button
+        class="btn green"
+        onclick="saveQuickResult()">
+        Save Result
+      </button>
+
+      <button
+        class="btn dark"
+        onclick="closeModal('resultModal')">
+        Cancel
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<div class="toast" id="toast"></div>
+
+
+<script type="module">
+
+/* ==================================================
+   FIREBASE
+================================================== */
+
+import {
+  initializeApp
+} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+
+import {
+  getDatabase,
+  ref,
+  get,
+  set,
+  push,
+  update,
+  remove
+} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+
+
+const firebaseConfig = {
+
+  apiKey:
+    "AIzaSyDZwA8UdtREPfoKDO3xQqTYOwb3SRx2sys",
+
+  authDomain:
+    "number-3b97a.firebaseapp.com",
+
+  databaseURL:
+    "https://number-3b97a-default-rtdb.firebaseio.com",
+
+  projectId:
+    "number-3b97a",
+
+  storageBucket:
+    "number-3b97a.firebasestorage.app",
+
+  messagingSenderId:
+    "1024894306844",
+
+  appId:
+    "1:1024894306844:web:5f0a7058a948ef71beadd9"
+
+};
+
+
+const app =
+  initializeApp(firebaseConfig);
+
+const db =
+  getDatabase(app);
+
+
+/* ==================================================
+   LOCAL STATE
+================================================== */
+
+let predictions = [];
+let users = [];
+let testimonials = [];
+
+
+/* ==================================================
+   LOAD EVERYTHING
+================================================== */
+
+async function loadDashboard(){
+
+  try{
+
+    await Promise.all([
+      loadPredictions(),
+      loadUsers(),
+      loadTestimonials()
+    ]);
+
+    updateStats();
+
+  }catch(error){
+
+    console.error(error);
+
+    showToast(
+      "Could not load Firebase data."
+    );
+
+  }
+
+}
+
+
+/* ==================================================
+   PREDICTIONS
+================================================== */
+
+async function loadPredictions(){
+
+  const snapshot =
+    await get(
+      ref(db,"predictions")
+    );
+
+
+  if(!snapshot.exists()){
+
+    predictions = [];
+
+  }else{
+
+    const data =
+      snapshot.val();
+
+    predictions =
+      Object.entries(data)
+      .map(([id,item])=>({
+        id,
+        ...(item || {})
+      }));
+
+  }
+
+
+  predictions.sort(
+    (a,b)=>
+      (b.createdAt || 0) -
+      (a.createdAt || 0)
+  );
+
+
+  updateWeekFilter();
+
+  renderPredictions();
+
+}
+
+
+/* ==================================================
+   WEEK FILTER
+================================================== */
+
+function updateWeekFilter(){
+
+  const select =
+    document.getElementById(
+      "weekFilter"
+    );
+
+  const current =
+    select.value;
+
+  const weeks = [
+    ...new Set(
+      predictions
+      .map(p=>p.week)
+      .filter(Boolean)
+    )
+  ];
+
+
+  select.innerHTML =
+    `<option value="all">All Weeks</option>`;
+
+
+  weeks
+    .sort()
+    .forEach(week=>{
+
+      const option =
+        document.createElement(
+          "option"
+        );
+
+      option.value = week;
+      option.textContent = week;
+
+      select.appendChild(option);
+
+    });
+
+
+  if(weeks.includes(current)){
+
+    select.value = current;
+
+  }
+
+}
+
+
+/* ==================================================
+   RENDER PREDICTIONS
+================================================== */
+
+window.renderPredictions =
+function(){
+
+  const table =
+    document.getElementById(
+      "predictionTable"
+    );
+
+
+  const search =
+    document.getElementById(
+      "searchPredictions"
+    )
+    .value
+    .toLowerCase()
+    .trim();
+
+
+  const week =
+    document.getElementById(
+      "weekFilter"
+    ).value;
+
+
+  const visibility =
+    document.getElementById(
+      "visibilityFilter"
+    ).value;
+
+
+  const result =
+    document.getElementById(
+      "resultFilter"
+    ).value;
+
+
+  const filtered =
+    predictions.filter(p=>{
+
+      const text = (
+
+        (p.homeTeam || "") +
+        " " +
+        (p.awayTeam || "") +
+        " " +
+        (p.league || "") +
+        " " +
+        (p.country || "")
+
+      ).toLowerCase();
+
+
+      if(
+        search &&
+        !text.includes(search)
+      ){
+
+        return false;
+
+      }
+
+
+      if(
+        week !== "all" &&
+        p.week !== week
+      ){
+
+        return false;
+
+      }
+
+
+      if(
+        visibility !== "all" &&
+        p.visibility !== visibility
+      ){
+
+        return false;
+
+      }
+
+
+      if(
+        result !== "all" &&
+        (p.result || "Pending") !== result
+      ){
+
+        return false;
+
+      }
+
+
+      return true;
+
+    });
+
+
+  if(!filtered.length){
+
+    table.innerHTML = `
+      <tr>
+        <td colspan="7">
+          <div class="empty">
+            No predictions found.
+          </div>
+        </td>
+      </tr>
+    `;
+
+    return;
+
+  }
+
+
+  table.innerHTML =
+    filtered.map(p=>{
+
+      const access =
+        p.visibility || "free";
+
+
+      const accessClass =
+        access === "vip"
+          ? "badge-vip"
+          : access === "both"
+            ? "badge-both"
+            : "badge-free";
+
+
+      const accessText =
+        access === "vip"
+          ? "VIP"
+          : access === "both"
+            ? "BOTH"
+            : "FREE";
+
+
+      const res =
+        p.result || "Pending";
+
+
+      const resultClass =
+        res === "Won"
+          ? "badge-won"
+          : res === "Lost"
+            ? "badge-lost"
+            : "badge-pending";
+
+
+      return `
+
+        <tr>
+
+          <td>
+
+            <div class="team-cell">
+
+              ${escapeHTML(
+                p.homeTeam || "-"
+              )}
+
+              <span class="muted">
+                vs
+              </span>
+
+              ${escapeHTML(
+                p.awayTeam || "-"
+              )}
+
+            </div>
+
+            <small class="muted">
+
+              ${formatDate(
+                p.matchDate
+              )}
+
+            </small>
+
+          </td>
+
+
+          <td>
+
+            <strong>
+              ${escapeHTML(
+                p.league || "-"
+              )}
+            </strong>
+
+            <br>
+
+            <small class="muted">
+
+              ${escapeHTML(
+                p.country || "-"
+              )}
+
+            </small>
+
+          </td>
+
+
+          <td>
+            ${escapeHTML(
+              p.week || "-"
+            )}
+          </td>
+
+
+          <td>
+
+            <strong style="color:#19e66b">
+
+              ${escapeHTML(
+                p.prediction || "-"
+              )}
+
+            </strong>
+
+          </td>
+
+
+          <td>
+
+            <span class="badge ${accessClass}">
+
+              ${accessText}
+
+            </span>
+
+          </td>
+
+
+          <td>
+
+            <span class="badge ${resultClass}">
+
+              ${escapeHTML(res)}
+
+            </span>
+
+            ${
+              p.score
+                ? `
+                  <br>
+                  <small class="muted">
+                    ${escapeHTML(p.score)}
+                  </small>
+                `
+                : ""
+            }
+
+          </td>
+
+
+          <td>
+
+            <div class="actions">
+
+              <button
+                class="action-btn edit"
+                onclick="editPrediction('${p.id}')">
+
+                Edit
+
+              </button>
+
+
+              <button
+                class="action-btn result-btn"
+                onclick="openResultModal('${p.id}')">
+
+                Result
+
+              </button>
+
+
+              <button
+                class="action-btn delete"
+                onclick="deletePrediction('${p.id}')">
+
+                Delete
+
+              </button>
+
+            </div>
+
+          </td>
+
+        </tr>
+
+      `;
+
+    }).join("");
+
+};
+
+
+/* ==================================================
+   SAVE PREDICTION
+================================================== */
+
+window.savePrediction =
+async function(event){
+
+  event.preventDefault();
+
+
+  const id =
+    document.getElementById(
+      "predictionId"
+    ).value;
+
+
+  const data = {
+
+    week:
+      document.getElementById(
+        "week"
+      ).value.trim(),
+
+    country:
+      document.getElementById(
+        "country"
+      ).value.trim(),
+
+    league:
+      document.getElementById(
+        "league"
+      ).value.trim(),
+
+    matchDate:
+      document.getElementById(
+        "matchDate"
+      ).value,
+
+    homeTeam:
+      document.getElementById(
+        "homeTeam"
+      ).value.trim(),
+
+    awayTeam:
+      document.getElementById(
+        "awayTeam"
+      ).value.trim(),
+
+    prediction:
+      document.getElementById(
+        "prediction"
+      ).value.trim(),
+
+    visibility:
+      document.getElementById(
+        "visibility"
+      ).value,
+
+    result:
+      document.getElementById(
+        "result"
+      ).value,
+
+    score:
+      document.getElementById(
+        "score"
+      ).value.trim(),
+
+    adminNote:
+      document.getElementById(
+        "adminNote"
+      ).value.trim(),
+
+    updatedAt:
+      Date.now()
+
+  };
+
+
+  try{
+
+    if(id){
+
+      await update(
+        ref(
+          db,
+          "predictions/" + id
+        ),
+        data
+      );
+
+      showToast(
+        "Prediction updated successfully."
+      );
+
+    }else{
+
+      data.createdAt =
+        Date.now();
+
+
+      const newRef =
+        push(
+          ref(db,"predictions")
+        );
+
+
+      await set(
+        newRef,
+        data
+      );
+
+
+      showToast(
+        "Prediction published successfully."
+      );
+
+    }
+
+
+    clearPredictionForm();
+
+    await loadPredictions();
+
+    updateStats();
+
+
+  }catch(error){
+
+    console.error(error);
+
+    showToast(
+      "Could not save prediction."
+    );
+
+  }
+
+};
+
+
+/* ==================================================
+   EDIT PREDICTION
+================================================== */
+
+window.editPrediction =
+function(id){
+
+  const p =
+    predictions.find(
+      item => item.id === id
+    );
+
+
+  if(!p) return;
+
+
+  document.getElementById(
+    "predictionId"
+  ).value = p.id;
+
+
+  document.getElementById(
+    "week"
+  ).value =
+    p.week || "";
+
+
+  document.getElementById(
+    "country"
+  ).value =
+    p.country || "";
+
+
+  document.getElementById(
+    "league"
+  ).value =
+    p.league || "";
+
+
+  document.getElementById(
+    "matchDate"
+  ).value =
+    p.matchDate || "";
+
+
+  document.getElementById(
+    "homeTeam"
+  ).value =
+    p.homeTeam || "";
+
+
+  document.getElementById(
+    "awayTeam"
+  ).value =
+    p.awayTeam || "";
+
+
+  document.getElementById(
+    "prediction"
+  ).value =
+    p.prediction || "";
+
+
+  document.getElementById(
+    "visibility"
+  ).value =
+    p.visibility || "free";
+
+
+  document.getElementById(
+    "result"
+  ).value =
+    p.result || "Pending";
+
+
+  document.getElementById(
+    "score"
+  ).value =
+    p.score || "";
+
+
+  document.getElementById(
+    "adminNote"
+  ).value =
+    p.adminNote || "";
+
+
+  document.getElementById(
+    "predictionFormTitle"
+  ).textContent =
+    "Edit Prediction";
+
+
+  document.getElementById(
+    "savePredictionBtn"
+  ).textContent =
+    "Update Prediction";
+
+
+  window.scrollTo({
+    top:0,
+    behavior:"smooth"
+  });
+
+};
+
+
+/* ==================================================
+   CLEAR FORM
+================================================== */
+
+window.clearPredictionForm =
+function(){
+
+  document
+    .getElementById(
+      "predictionForm"
+    )
+    .reset();
+
+
+  document.getElementById(
+    "predictionId"
+  ).value = "";
+
+
+  document.getElementById(
+    "result"
+  ).value = "Pending";
+
+
+  document.getElementById(
+    "visibility"
+  ).value = "free";
+
+
+  document.getElementById(
+    "predictionFormTitle"
+  ).textContent =
+    "Post New Prediction";
+
+
+  document.getElementById(
+    "savePredictionBtn"
+  ).textContent =
+    "Publish Prediction";
+
+};
+
+
+/* ==================================================
+   DELETE PREDICTION
+================================================== */
+
+window.deletePrediction =
+async function(id){
+
+  const p =
+    predictions.find(
+      item => item.id === id
+    );
+
+
+  if(!p) return;
+
+
+  const confirmed =
+    confirm(
+      `Delete ${p.homeTeam || "this match"} vs ${p.awayTeam || ""}?\n\nThis cannot be undone.`
+    );
+
+
+  if(!confirmed) return;
+
+
+  try{
+
+    await remove(
+      ref(
+        db,
+        "predictions/" + id
+      )
+    );
+
+
+    showToast(
+      "Prediction deleted."
+    );
+
+
+    await loadPredictions();
+
+    updateStats();
+
+
+  }catch(error){
+
+    console.error(error);
+
+    showToast(
+      "Could not delete prediction."
+    );
+
+  }
+
+};
+
+
+/* ==================================================
+   QUICK RESULT
+================================================== */
+
+window.openResultModal =
+function(id){
+
+  const p =
+    predictions.find(
+      item => item.id === id
+    );
+
+
+  if(!p) return;
+
+
+  document.getElementById(
+    "resultPredictionId"
+  ).value = id;
+
+
+  document.getElementById(
+    "quickResult"
+  ).value =
+    p.result || "Pending";
+
+
+  document.getElementById(
+    "quickScore"
+  ).value =
+    p.score || "";
+
+
+  document
+    .getElementById(
+      "resultModal"
+    )
+    .classList.add("show");
+
+};
+
+
+window.saveQuickResult =
+async function(){
+
+  const id =
+    document.getElementById(
+      "resultPredictionId"
+    ).value;
+
+
+  const result =
+    document.getElementById(
+      "quickResult"
+    ).value;
+
+
+  const score =
+    document.getElementById(
+      "quickScore"
+    ).value.trim();
+
+
+  try{
+
+    await update(
+      ref(
+        db,
+        "predictions/" + id
+      ),
+      {
+        result,
+        score,
+        updatedAt:Date.now()
+      }
+    );
+
+
+    closeModal(
+      "resultModal"
+    );
+
+
+    showToast(
+      "Match result updated."
+    );
+
+
+    await loadPredictions();
+
+    updateStats();
+
+
+  }catch(error){
+
+    console.error(error);
+
+    showToast(
+      "Could not update result."
+    );
+
+  }
+
+};
+
+
+/* ==================================================
+   USERS
+================================================== */
+
+async function loadUsers(){
+
+  const grid =
+    document.getElementById(
+      "userGrid"
+    );
+
+
+  grid.innerHTML = `
+    <div class="loading">
+      Loading users...
+    </div>
+  `;
+
+
+  try{
+
+    const snapshot =
+      await get(
+        ref(db,"users")
+      );
+
+
+    if(!snapshot.exists()){
+
+      users = [];
+
+    }else{
+
+      const data =
+        snapshot.val();
+
+
+      users =
+        Object.entries(data)
+        .map(([id,item])=>({
+
+          id,
+
+          ...(item || {})
+
+        }));
+
+    }
+
+
+    users.sort(
+      (a,b)=>
+        (b.createdAt || 0) -
+        (a.createdAt || 0)
+    );
+
+
+    renderUsers();
+
+    updateStats();
+
+
+  }catch(error){
+
+    console.error(error);
+
+    grid.innerHTML = `
+      <div class="empty">
+        Could not load users.
+      </div>
+    `;
+
+  }
+
+}
+
+
+/* ==================================================
+   CHECK ACTIVE VIP
+================================================== */
+
+function isVIPActive(user){
+
+  if(user.vip !== true){
+    return false;
+  }
+
+
+  if(!user.vipExpiry){
+    return true;
+  }
+
+
+  const expiry =
+    Number(user.vipExpiry);
+
+
+  if(!Number.isFinite(expiry)){
+    return true;
+  }
+
+
+  return expiry >= Date.now();
+
+}
+
+
+/* ==================================================
+   RENDER USERS
+================================================== */
+
+window.renderUsers =
+function(){
+
+  const grid =
+    document.getElementById(
+      "userGrid"
+    );
+
+
+  const search =
+    document.getElementById(
+      "searchUsers"
+    )
+    .value
+    .toLowerCase()
+    .trim();
+
+
+  const status =
+    document.getElementById(
+      "userStatusFilter"
+    ).value;
+
+
+  const filtered =
+    users.filter(user=>{
+
+      const text = (
+
+        (user.name || "") +
+        " " +
+        (user.email || "")
+
+      ).toLowerCase();
+
+
+      if(
+        search &&
+        !text.includes(search)
+      ){
+
+        return false;
+
+      }
+
+
+      const activeVIP =
+        isVIPActive(user);
+
+
+      const expired =
+        user.vip === true &&
+        !activeVIP;
+
+
+      if(
+        status === "vip" &&
+        !activeVIP
+      ){
+
+        return false;
+
+      }
+
+
+      if(
+        status === "free" &&
+        user.vip === true
+      ){
+
+        return false;
+
+      }
+
+
+      if(
+        status === "expired" &&
+        !expired
+      ){
+
+        return false;
+
+      }
+
+
+      return true;
+
+    });
+
+
+  if(!filtered.length){
+
+    grid.innerHTML = `
+      <div class="empty">
+        No users found.
+      </div>
+    `;
+
+    return;
+
+  }
+
+
+  grid.innerHTML =
+    filtered.map(user=>{
+
+      const activeVIP =
+        isVIPActive(user);
+
+
+      const expired =
+        user.vip === true &&
+        !activeVIP;
+
+
+      let statusBadge = "";
+
+      if(activeVIP){
+
+        statusBadge = `
+          <span class="badge badge-vip">
+            ★ VIP ACTIVE
+          </span>
+        `;
+
+      }else if(expired){
+
+        statusBadge = `
+          <span class="badge badge-expired">
+            EXPIRED
+          </span>
+        `;
+
+      }else{
+
+        statusBadge = `
+          <span class="badge badge-free">
+            FREE
+          </span>
+        `;
+
+      }
+
+
+      const paymentStatus =
+        user.paymentStatus || "not_paid";
+
+
+      const paymentLabel =
+        paymentStatus === "confirmed"
+          ? "CONFIRMED"
+          : paymentStatus === "pending"
+            ? "PENDING"
+            : "NOT PAID";
+
+
+      return `
+
+        <div class="user-card ${activeVIP ? "vip-active" : ""}">
+
+          <div class="user-top">
+
+            <div>
+
+              <div class="user-name">
+
+                ${escapeHTML(
+                  user.name || "User"
+                )}
+
+              </div>
+
+              <div class="user-email">
+
+                ${escapeHTML(
+                  user.email || "-"
+                )}
+
+              </div>
+
+            </div>
+
+
+            ${statusBadge}
+
+          </div>
+
+
+          <div class="user-meta">
+
+            <div>
+
+              Joined
+
+              <strong>
+                ${formatDate(
+                  user.createdAt
+                )}
+              </strong>
+
+            </div>
+
+
+            <div>
+
+              VIP Expiry
+
+              <strong>
+
+                ${
+                  user.vipExpiry
+                    ? formatDate(
+                        user.vipExpiry
+                      )
+                    : "No expiry"
+                }
+
+              </strong>
+
+            </div>
+
+
+            <div>
+
+              Payment
+
+              <strong>
+                ${paymentLabel}
+              </strong>
+
+            </div>
+
+
+            <div>
+
+              VIP Since
+
+              <strong>
+
+                ${
+                  user.vipActivatedAt
+                    ? formatDate(
+                        user.vipActivatedAt
+                      )
+                    : "-"
+                }
+
+              </strong>
+
+            </div>
+
+          </div>
+
+
+          ${
+            user.paymentReference
+              ? `
+                <div class="payment-box">
+
+                  <small>
+                    Payment Reference
+                  </small>
+
+                  <strong>
+                    ${escapeHTML(
+                      user.paymentReference
+                    )}
+                  </strong>
+
+                </div>
+              `
+              : ""
+          }
+
+
+          <div class="user-actions">
+
+            <button
+              class="btn ${
+                activeVIP
+                  ? "gold"
+                  : "green"
+              }"
+              onclick="manageUser('${user.id}')">
+
+              ${
+                activeVIP
+                  ? "Manage VIP"
+                  : "Activate VIP"
+              }
+
+            </button>
+
+
+            ${
+              activeVIP
+                ? `
+                  <button
+                    class="btn red"
+                    onclick="deactivateVIP('${user.id}')">
+
+                    Deactivate
+
+                  </button>
+                `
+                : ""
+            }
+
+          </div>
+
+        </div>
+
+      `;
+
+    }).join("");
+
+};
+
+
+/* ==================================================
+   MANAGE USER
+================================================== */
+
+window.manageUser =
+function(id){
+
+  const user =
+    users.find(
+      u => u.id === id
+    );
+
+
+  if(!user) return;
+
+
+  document.getElementById(
+    "selectedUserId"
+  ).value = id;
+
+
+  document.getElementById(
+    "modalUserName"
+  ).textContent =
+    user.name || "User";
+
+
+  document.getElementById(
+    "modalUserEmail"
+  ).textContent =
+    user.email || "-";
+
+
+  document.getElementById(
+    "userVIP"
+  ).value =
+    user.vip === true
+      ? "true"
+      : "false";
+
+
+  if(user.vipExpiry){
+
+    const date =
+      new Date(
+        Number(user.vipExpiry)
+      );
+
+
+    if(!Number.isNaN(date.getTime())){
+
+      const year =
+        date.getFullYear();
+
+      const month =
+        String(
+          date.getMonth() + 1
+        ).padStart(2,"0");
+
+      const day =
+        String(
+          date.getDate()
+        ).padStart(2,"0");
+
+
+      document.getElementById(
+        "vipExpiry"
+      ).value =
+        `${year}-${month}-${day}`;
+
+    }else{
+
+      document.getElementById(
+        "vipExpiry"
+      ).value = "";
+
+    }
+
+  }else{
+
+    document.getElementById(
+      "vipExpiry"
+    ).value = "";
+
+  }
+
+
+  document.getElementById(
+    "paymentStatus"
+  ).value =
+    user.paymentStatus ||
+    "confirmed";
+
+
+  document.getElementById(
+    "paymentReference"
+  ).value =
+    user.paymentReference || "";
+
+
+  document.getElementById(
+    "vipAdminNote"
+  ).value =
+    user.vipAdminNote || "";
+
+
+  toggleVIPFields();
+
+
+  document
+    .getElementById(
+      "userModal"
+    )
+    .classList.add("show");
+
+};
+
+
+/* ==================================================
+   TOGGLE VIP FIELDS
+================================================== */
+
+window.toggleVIPFields =
+function(){
+
+  const vip =
+    document.getElementById(
+      "userVIP"
+    ).value === "true";
+
+
+  document.getElementById(
+    "vipFields"
+  ).style.display =
+    vip ? "block" : "none";
+
+};
+
+
+/* ==================================================
+   SAVE USER / ACTIVATE VIP
+================================================== */
+
+window.saveUser =
+async function(){
+
+  const id =
+    document.getElementById(
+      "selectedUserId"
+    ).value;
+
+
+  if(!id){
+
+    showToast(
+      "No user selected."
+    );
+
+    return;
+
+  }
+
+
+  const user =
+    users.find(
+      u => u.id === id
+    );
+
+
+  if(!user){
+
+    showToast(
+      "User not found."
+    );
+
+    return;
+
+  }
+
+
+  const vip =
+    document.getElementById(
+      "userVIP"
+    ).value === "true";
+
+
+  const expiry =
+    document.getElementById(
+      "vipExpiry"
+    ).value;
+
+
+  const paymentStatus =
+    document.getElementById(
+      "paymentStatus"
+    ).value;
+
+
+  const paymentReference =
+    document.getElementById(
+      "paymentReference"
+    ).value.trim();
+
+
+  const vipAdminNote =
+    document.getElementById(
+      "vipAdminNote"
+    ).value.trim();
+
+
+  /* --------------------------------
+     SECURITY CHECK IN UI:
+     VIP requires confirmed payment.
+  -------------------------------- */
+
+  if(
+    vip &&
+    paymentStatus !== "confirmed"
+  ){
+
+    showToast(
+      "Confirm payment before activating VIP."
+    );
+
+    return;
+
+  }
+
+
+  let vipExpiry = null;
+
+
+  if(vip && expiry){
+
+    const expiryDate =
+      new Date(
+        expiry + "T23:59:59"
+      );
+
+
+    vipExpiry =
+      expiryDate.getTime();
+
+  }
+
+
+  try{
+
+    const updateData = {
+
+      vip,
+
+      vipExpiry,
+
+      paymentStatus,
+
+      paymentReference,
+
+      vipAdminNote,
+
+      updatedAt:
+        Date.now()
+
+    };
+
+
+    if(vip){
+
+      updateData.vipActivatedAt =
+        Date.now();
+
+    }else{
+
+      updateData.vipActivatedAt =
+        null;
+
+    }
+
+
+    await update(
+      ref(
+        db,
+        "users/" + id
+      ),
+      updateData
+    );
+
+
+    closeModal(
+      "userModal"
+    );
+
+
+    showToast(
+      vip
+        ? "VIP access activated successfully."
+        : "VIP access removed."
+    );
+
+
+    await loadUsers();
+
+    updateStats();
+
+
+  }catch(error){
+
+    console.error(error);
+
+    showToast(
+      "Could not update user."
+    );
+
+  }
+
+};
+
+
+/* ==================================================
+   DEACTIVATE VIP
+================================================== */
+
+window.deactivateVIP =
+async function(id){
+
+  const user =
+    users.find(
+      u => u.id === id
+    );
+
+
+  if(!user) return;
+
+
+  const confirmed =
+    confirm(
+      `Remove VIP access from ${user.name || user.email || "this user"}?`
+    );
+
+
+  if(!confirmed) return;
+
+
+  try{
+
+    await update(
+      ref(
+        db,
+        "users/" + id
+      ),
+      {
+
+        vip:false,
+
+        vipExpiry:null,
+
+        updatedAt:
+          Date.now()
+
+      }
+    );
+
+
+    showToast(
+      "VIP access removed."
+    );
+
+
+    await loadUsers();
+
+    updateStats();
+
+
+  }catch(error){
+
+    console.error(error);
+
+    showToast(
+      "Could not deactivate VIP."
+    );
+
+  }
+
+};
+
+
+/* ==================================================
+   TESTIMONIALS
+================================================== */
+
+async function loadTestimonials(){
+
+  const snapshot =
+    await get(
+      ref(db,"testimonials")
+    );
+
+
+  if(!snapshot.exists()){
+
+    testimonials = [];
+
+  }else{
+
+    const data =
+      snapshot.val();
+
+
+    testimonials =
+      Object.entries(data)
+      .map(([id,item])=>({
+
+        id,
+
+        ...(item || {})
+
+      }));
+
+  }
+
+
+  renderTestimonials();
+
+}
+
+
+window.renderTestimonials =
+function(){
+
+  const container =
+    document.getElementById(
+      "testimonialAdminList"
+    );
+
+
+  if(!testimonials.length){
+
+    container.innerHTML = `
+      <div class="empty">
+        No testimonials yet.
+      </div>
+    `;
+
+    return;
+
+  }
+
+
+  container.innerHTML =
+    testimonials.map(t=>{
+
+      const rating =
+        Math.min(
+          5,
+          Math.max(
+            1,
+            Number(t.rating || 5)
+          )
+        );
+
+
+      return `
+
+        <div
+          class="user-card"
+          style="margin-bottom:12px">
+
+          <div class="user-top">
+
+            <div>
+
+              <div class="user-name">
+
+                ${escapeHTML(
+                  t.name || "Anonymous"
+                )}
+
+              </div>
+
+              <div class="user-email">
+
+                ${"★".repeat(rating)}
+
+              </div>
+
+            </div>
+
+
+            <span class="badge ${
+              t.approved
+                ? "badge-free"
+                : "badge-pending"
+            }">
+
+              ${
+                t.approved
+                  ? "APPROVED"
+                  : "PENDING"
+              }
+
+            </span>
+
+          </div>
+
+
+          <p
+            style="
+              color:#c4cec7;
+              font-size:13px;
+              margin:15px 0;
+            ">
+
+            ${escapeHTML(
+              t.message || ""
+            )}
+
+          </p>
+
+
+          <div class="actions">
+
+            <button
+              class="action-btn edit"
+              onclick="toggleTestimonial('${t.id}',${!t.approved})">
+
+              ${
+                t.approved
+                  ? "Unapprove"
+                  : "Approve"
+              }
+
+            </button>
+
+
+            <button
+              class="action-btn delete"
+              onclick="deleteTestimonial('${t.id}')">
+
+              Delete
+
+            </button>
+
+          </div>
+
+        </div>
+
+      `;
+
+    }).join("");
+
+};
+
+
+window.toggleTestimonial =
+async function(id,approved){
+
+  try{
+
+    await update(
+      ref(
+        db,
+        "testimonials/" + id
+      ),
+      {
+        approved,
+        updatedAt:Date.now()
+      }
+    );
+
+
+    showToast(
+      approved
+        ? "Testimonial approved."
+        : "Testimonial unapproved."
+    );
+
+
+    await loadTestimonials();
+
+
+  }catch(error){
+
+    console.error(error);
+
+    showToast(
+      "Could not update testimonial."
+    );
+
+  }
+
+};
+
+
+window.deleteTestimonial =
+async function(id){
+
+  if(
+    !confirm(
+      "Delete this testimonial?"
+    )
+  ){
+
+    return;
+
+  }
+
+
+  try{
+
+    await remove(
+      ref(
+        db,
+        "testimonials/" + id
+      )
+    );
+
+
+    showToast(
+      "Testimonial deleted."
+    );
+
+
+    await loadTestimonials();
+
+
+  }catch(error){
+
+    console.error(error);
+
+    showToast(
+      "Could not delete testimonial."
+    );
+
+  }
+
+};
+
+
+/* ==================================================
+   DASHBOARD TABS
+================================================== */
+
+window.showTab =
+function(tabId,button){
+
+  document.getElementById(
+    "predictionsTab"
+  ).style.display = "none";
+
+
+  document.getElementById(
+    "usersTab"
+  ).style.display = "none";
+
+
+  document.getElementById(
+    "testimonialsTab"
+  ).style.display = "none";
+
+
+  document.getElementById(
+    tabId
+  ).style.display = "block";
+
+
+  document
+    .querySelectorAll(
+      ".dashboard-tabs button"
+    )
+    .forEach(btn=>
+      btn.classList.remove(
+        "active"
+      )
+    );
+
+
+  button.classList.add(
+    "active"
+  );
+
+};
+
+
+/* ==================================================
+   STATS
+================================================== */
+
+function updateStats(){
+
+  document.getElementById(
+    "totalUsers"
+  ).textContent =
+    users.length;
+
+
+  document.getElementById(
+    "totalVIP"
+  ).textContent =
+    users.filter(
+      u => isVIPActive(u)
+    ).length;
+
+
+  document.getElementById(
+    "totalPredictions"
+  ).textContent =
+    predictions.length;
+
+
+  document.getElementById(
+    "totalWon"
+  ).textContent =
+    predictions.filter(
+      p => p.result === "Won"
+    ).length;
+
+
+  document.getElementById(
+    "totalLost"
+  ).textContent =
+    predictions.filter(
+      p => p.result === "Lost"
+    ).length;
+
+}
+
+
+/* ==================================================
+   MODALS
+================================================== */
+
+window.closeModal =
+function(id){
+
+  document
+    .getElementById(id)
+    .classList.remove("show");
+
+};
+
+
+document
+  .querySelectorAll(".modal")
+  .forEach(modal=>{
+
+    modal.addEventListener(
+      "click",
+      event=>{
+
+        if(
+          event.target === modal
+        ){
+
+          modal.classList.remove(
+            "show"
+          );
+
+        }
+
+      }
+    );
+
+  });
+
+
+/* ==================================================
+   TOAST
+================================================== */
+
+function showToast(message){
+
+  const toast =
+    document.getElementById(
+      "toast"
+    );
+
+
+  toast.textContent =
+    message;
+
+
+  toast.classList.add(
+    "show"
+  );
+
+
+  setTimeout(
+    ()=>
+      toast.classList.remove(
+        "show"
+      ),
+    3000
+  );
+
+}
+
+
+/* ==================================================
+   HELPERS
+================================================== */
+
+function escapeHTML(value){
+
+  return String(value ?? "")
+    .replaceAll(
+      "&",
+      "&amp;"
+    )
+    .replaceAll(
+      "<",
+      "&lt;"
+    )
+    .replaceAll(
+      ">",
+      "&gt;"
+    )
+    .replaceAll(
+      '"',
+      "&quot;"
+    )
+    .replaceAll(
+      "'",
+      "&#039;"
+    );
+
+}
+
+
+function formatDate(value){
+
+  if(
+    value === null ||
+    value === undefined ||
+    value === ""
+  ){
+
+    return "-";
+
+  }
+
+
+  let date;
+
+
+  if(
+    typeof value === "number" ||
+    !Number.isNaN(
+      Number(value)
+    )
+  ){
+
+    date =
+      new Date(
+        Number(value)
+      );
+
+  }else{
+
+    date =
+      new Date(value);
+
+  }
+
+
+  if(
+    Number.isNaN(
+      date.getTime()
+    )
+  ){
+
+    return String(value);
+
+  }
+
+
+  return date.toLocaleString(
+    "en-NG",
+    {
+      dateStyle:"medium",
+      timeStyle:"short"
+    }
+  );
+
+}
+
+
+/* ==================================================
+   START
+================================================== */
+
+loadDashboard();
+
+</script>
+
+</body>
+</html>
