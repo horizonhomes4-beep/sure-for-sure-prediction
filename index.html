@@ -124,6 +124,14 @@ function renderP(){
  renderCalendar("p");$("ps").textContent=selectedPred==="all"?"All available dates":nice(selectedPred);
  let list=P.filter(p=>selectedPred==="all"||dateOnly(p.matchDate||p.date)===selectedPred);
  if(eventFilter!=="all")list=list.filter(p=>(p.eventId||p.event||"Football")===eventFilter);
+ if(predictionAccess)list=list.filter(p=>String(p.visibility||"free").toLowerCase()===predictionAccess);
+ if(predictionSearch){
+   const q=predictionSearch.toLowerCase();
+   list=list.filter(p=>[
+     p.homeTeam,p.awayTeam,p.league,p.country,p.prediction,p.eventName,
+     eventName(p.eventId||p.event)
+   ].some(v=>String(v||"").toLowerCase().includes(q)));
+ }
  list.sort((a,b)=>String(a.matchDate||a.date||"").localeCompare(String(b.matchDate||b.date||"")));
  $("todayCount").textContent=P.filter(p=>dateOnly(p.matchDate||p.date)===key(new Date())).length;renderEvents();
  $("predGrid").innerHTML=list.length?list.map(p=>{const vip=p.visibility==="vip";const publicBoth=p.visibility==="both";return`
@@ -176,7 +184,7 @@ $("forgotBtn").onclick=async()=>{
   catch(e){$("authStatus").textContent=e?.code==="auth/user-not-found"?"No account was found for that email.":(e?.message||"Unable to send reset email.")}
 };
 $("googleBtn").onclick=async()=>{
-  try{const r=await signInWithPopup(auth,googleProvider);await saveProfile(r.user,"google");closeAuth()}
+  try{const r=await signInWithPopup(auth,googleProvider);await saveProfile(r.user,"google");$("authStatus").textContent="Google sign-in successful.";setTimeout(closeAuth,450)}
   catch(e){$("authStatus").textContent=e?.message||"Google sign-in failed."}
 };
 $("authForm").onsubmit=async e=>{
@@ -189,8 +197,12 @@ $("authForm").onsubmit=async e=>{
       r=await createUserWithEmailAndPassword(auth,email,pw);
       if($("authName").value.trim())await updateProfile(r.user,{displayName:$("authName").value.trim()});
       await saveProfile(r.user,"password");
-    }else r=await signInWithEmailAndPassword(auth,email,pw);
-    closeAuth();
+      $("authStatus").textContent="Account created successfully.";
+    }else{
+      r=await signInWithEmailAndPassword(auth,email,pw);
+      $("authStatus").textContent="Login successful.";
+    }
+    setTimeout(closeAuth,450);
   }catch(e){
     $("authStatus").textContent=e?.code==="auth/email-already-in-use"?"Email already registered.":e?.code==="auth/invalid-credential"?"Invalid email or password.":(e?.message||"Authentication failed.")
   }
@@ -229,9 +241,9 @@ $("predictionAccess").addEventListener("change",e=>{predictionAccess=e.target.va
 $("pp").onclick=()=>{predMonth.setMonth(predMonth.getMonth()-1);renderP()};$("pn").onclick=()=>{predMonth.setMonth(predMonth.getMonth()+1);renderP()};$("pt").onclick=()=>{predMonth=new Date();selectedPred=key(new Date());renderP()};$("pa").onclick=()=>{selectedPred="all";eventFilter="all";renderP()};
 $("rp").onclick=()=>{resMonth.setMonth(resMonth.getMonth()-1);renderR()};$("rn").onclick=()=>{resMonth.setMonth(resMonth.getMonth()+1);renderR()};$("rt").onclick=()=>{resMonth=new Date();selectedResult=key(new Date());renderR()};
 $("rl").onclick=()=>{const a=P.filter(p=>p.resultPublished===true).sort((x,y)=>String(y.matchDate||y.date||"").localeCompare(String(x.matchDate||x.date||"")));if(a.length){selectedResult=dateOnly(a[0].matchDate||a[0].date);resMonth=new Date(selectedResult+"T12:00:00");renderR()}};
-onValue(ref(db,"predictions"),s=>{P=s.exists()?Object.entries(s.val()).map(([id,x])=>({id,...(x||{})})):[];renderP();renderR()});
-onValue(ref(db,"events"),s=>{E=s.exists()?Object.entries(s.val()).map(([id,x])=>({id,...(x||{})})):[];$("eventCount").textContent=E.filter(e=>e.status!=="Archived").length;renderEvents()});
-onValue(ref(db,"bookingCodes"),s=>{C=s.exists()?Object.entries(s.val()).map(([id,x])=>({id,...(x||{})})):[];renderC()});
+onValue(ref(db,"predictions"),s=>{P=s.exists()?Object.entries(s.val()).map(([id,x])=>({id,...(x||{})})):[];renderP();renderR()},e=>{$("predGrid").innerHTML='<div class="empty">Unable to load predictions: '+esc(e?.message||"Database error")+'</div>'});
+onValue(ref(db,"events"),s=>{E=s.exists()?Object.entries(s.val()).map(([id,x])=>({id,...(x||{})})):[];$("eventCount").textContent=E.filter(e=>e.status!=="Archived").length;renderEvents()},e=>{console.error(e)});
+onValue(ref(db,"bookingCodes"),s=>{C=s.exists()?Object.entries(s.val()).map(([id,x])=>({id,...(x||{})})):[];renderC()},e=>{$("codes").innerHTML='<div class="empty">Unable to load booking codes: '+esc(e?.message||"Database error")+'</div>'});
 renderP();renderR();renderC();
 </script>
 </body>
