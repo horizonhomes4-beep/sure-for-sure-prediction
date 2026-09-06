@@ -101,7 +101,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--green);box-shadow:0 0
 <div class="field"><label>End date</label><input id="eend" type="date" required></div>
 <div class="field full"><label>Description</label><textarea id="edesc"></textarea></div>
 </form>
-<div class="actions"><button class="btn green" id="saveEventBtn">Save Event</button><button class="btn" id="newEventBtn">New</button></div>
+<div class="actions"><button type="button" class="btn green" id="saveEventBtn">Save Event</button><button type="button" class="btn" id="newEventBtn">New</button></div>
 </div>
 <div id="eventList" class="cards"></div>
 </div>
@@ -120,7 +120,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--green);box-shadow:0 0
 <div class="field"><label>Prediction</label><input id="pick" required placeholder="Over 1.5 Goals"></div>
 <div class="field"><label>Access</label><select id="access"><option value="free">FREE</option><option value="vip">VIP</option><option value="both">FREE + VIP</option></select></div>
 </form>
-<div class="actions"><button class="btn green" id="savePredBtn">Publish / Update</button><button class="btn" id="newPredBtn">New</button></div>
+<div class="actions"><button type="button" class="btn green" id="savePredBtn">Publish / Update</button><button type="button" class="btn" id="newPredBtn">New</button></div>
 </div>
 <div class="panel" style="margin-top:14px"><div class="toolbar"><div><h2>Daily Prediction Browser</h2><p>All predictions scheduled for the selected day.</p></div><input id="pb" type="date"></div>
 <div class="table"><table><thead><tr><th>Date & Time</th><th>Match</th><th>Event</th><th>Pick</th><th>Access</th><th>Actions</th></tr></thead><tbody id="ptbl"></tbody></table></div></div>
@@ -244,7 +244,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--green);box-shadow:0 0
 <div class="field"><label>Status</label><select id="cactive"><option value="true">Active</option><option value="false">Hidden</option></select></div>
 <div class="field full"><label>Note</label><input id="cnote"></div>
 </form>
-<div class="actions"><button class="btn green" id="saveCodeBtn">Save Code</button><button class="btn" id="newCodeBtn">New</button></div>
+<div class="actions"><button type="button" class="btn green" id="saveCodeBtn">Save Code</button><button type="button" class="btn" id="newCodeBtn">New</button></div>
 <div id="clist" class="cards"></div>
 </div>
 </section>
@@ -603,6 +603,16 @@ document.addEventListener('click',e=>{
 
 $('pb').value=bd;
 $('pb').onchange=()=>{bd=$('pb').value;renderPreds()};
+
+$('saveEventBtn').addEventListener('click',saveEvent);
+$('newEventBtn').addEventListener('click',()=>{clearEvent();toast('Event form cleared.','info')});
+
+$('savePredBtn').addEventListener('click',savePred);
+$('newPredBtn').addEventListener('click',()=>{clearPred();toast('Prediction form cleared.','info')});
+
+$('saveCodeBtn').addEventListener('click',saveCode);
+$('newCodeBtn').addEventListener('click',()=>{clearCode();toast('Booking code form cleared.','info')});
+
 $('userSearch').addEventListener('input',renderUsers);
 $('userRoleFilter').addEventListener('change',renderUsers);
 $('userStatusFilter').addEventListener('change',renderUsers);
@@ -637,7 +647,12 @@ onValue(ref(db,'users'),s=>{
   $('su').textContent=U.length;renderUsers();
 },err=>{console.error(err);toast('Users read failed: '+err.message)});
 
-renderEvents();renderPreds();renderResults();renderCodes();renderUsers();
+try{
+  renderEvents();renderPreds();renderResults();renderCodes();renderUsers();
+}catch(err){
+  console.error(err);
+  toast('Admin page initialization error: '+(err?.message||'Unknown error'),'error');
+}
 </script>
 </body>
 </html>
