@@ -1,3798 +1,643 @@
-<!DOCTYPE html>
+
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Sure for Sure — Admin Dashboard</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sure for Sure | Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#061018;--panel:#0b1823;--panel2:#0e202e;--line:#1b3040;--text:#eef7fb;--muted:#8ea5b5;--green:#19e66b;--gold:#ffd84d;--red:#ff5c70;--blue:#49c9ff}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,Arial,sans-serif}
+button,input,select,textarea{font:inherit}.layout{display:grid;grid-template-columns:245px minmax(0,1fr);min-height:100vh}
+aside{background:#07131d;border-right:1px solid var(--line);padding:18px;position:sticky;top:0;height:100vh}
+.brand{display:flex;align-items:center;gap:10px;font-weight:900;margin-bottom:25px}.brand img{width:42px;height:42px;object-fit:contain;border-radius:10px}
+.nav{display:grid;gap:5px}.nav button{display:block;width:100%;padding:12px;border:1px solid transparent;background:none;color:#9eb2c0;text-align:left;border-radius:10px;font-weight:800;cursor:pointer}
+.nav button.active,.nav button:hover{background:#19e66b12;color:var(--green);border-color:#19e66b20}
+main{padding:27px;max-width:1500px;width:100%;margin:auto}.top{display:flex;justify-content:space-between;align-items:end;gap:15px;margin-bottom:20px}
+h1{font-size:32px;margin:5px 0;letter-spacing:-.04em}h2{font-size:20px;margin:0 0 5px}h3{margin:7px 0}p{color:var(--muted);line-height:1.55}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}.stat,.panel{background:linear-gradient(145deg,var(--panel2),#09151f);border:1px solid var(--line);border-radius:17px;padding:17px}
+.stat b{display:block;font-size:26px;margin-top:5px}.tab{display:none}.tab.active{display:block}
+.form{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field{display:flex;flex-direction:column;gap:5px}.full{grid-column:1/-1}
+label{font-size:10px;color:#b6c7d1;font-weight:800;text-transform:uppercase;letter-spacing:.04em}
+input,select,textarea{width:100%;background:#06121c;color:#fff;border:1px solid var(--line);border-radius:9px;padding:11px;outline:0}
+input:focus,select:focus,textarea:focus{border-color:var(--green);box-shadow:0 0 0 3px #19e66b12}textarea{min-height:90px;resize:vertical}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.btn{border:1px solid var(--line);background:#0b1b28;color:#fff;border-radius:9px;padding:10px 13px;font-weight:800;cursor:pointer}.btn:hover{filter:brightness(1.12)}
+.green{background:var(--green);color:#03150a;border-color:var(--green)}.gold{background:var(--gold);color:#171000;border-color:var(--gold)}.danger{color:#ff8090;background:#ff5c7012}
+.toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}.calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:15px}
+.dow{text-align:center;color:var(--muted);font-size:9px;font-weight:900;padding:5px}.day{min-height:68px;border:1px solid var(--line);background:#081521;color:#fff;border-radius:9px;text-align:left;padding:8px;cursor:pointer}.day.sel,.day:hover{border-color:var(--green);background:#19e66b12}.day.muted{opacity:.28}.day.today{box-shadow:inset 0 0 0 1px var(--blue)}
+.count{display:block;color:var(--green);font-size:9px;margin-top:7px}.table{overflow:auto;margin-top:14px}.table table{width:100%;border-collapse:collapse;min-width:850px}.table th,.table td{padding:10px;border-bottom:1px solid var(--line);font-size:11px;text-align:left;vertical-align:middle}.table th{color:var(--muted);font-size:9px;text-transform:uppercase}
+.pill{padding:4px 7px;border-radius:999px;font-size:9px;font-weight:900;white-space:nowrap}.pg{background:#19e66b15;color:var(--green)}.py{background:#ffd84d15;color:var(--gold)}.pr{background:#ff5c7015;color:var(--red)}
+.cards{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:14px}.mini{background:#081521;border:1px solid var(--line);border-radius:12px;padding:13px}.miniTop{display:flex;justify-content:space-between;gap:8px;align-items:center}.empty{text-align:center;padding:38px;border:1px dashed var(--line);border-radius:13px;color:var(--muted)}
+.toast{display:flex;align-items:center;gap:10px;position:fixed;right:18px;bottom:18px;min-width:280px;max-width:430px;padding:13px 16px;background:#102535;border:1px solid var(--line);border-radius:12px;z-index:9999;box-shadow:0 14px 40px #0008;opacity:0;transform:translateY(14px);pointer-events:none;transition:.22s ease}.toast.show{opacity:1;transform:translateY(0);pointer-events:auto}.toastIcon{width:25px;height:25px;display:grid;place-items:center;border-radius:50%;font-weight:900;background:#19e66b22;color:var(--green);flex:0 0 25px}.toastText{font-size:12px;line-height:1.45;color:#fff}.toast.error{border-color:#ff5c7066}.toast.error .toastIcon{background:#ff5c7022;color:var(--red)}.toast.warning{border-color:#ffd84d66}.toast.warning .toastIcon{background:#ffd84d22;color:var(--gold)}.toast.info{border-color:#5db7ff66}.toast.info .toastIcon{background:#5db7ff22;color:#5db7ff}
+.adminNotice{display:flex;align-items:center;gap:9px;margin:0 0 12px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:#081521;color:var(--muted);font-size:10px;line-height:1.45}.noticeDot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 0 4px #19e66b15;flex:0 0 8px}
+@media(max-width:850px){.layout{display:block}aside{height:auto;position:static;border-right:0;border-bottom:1px solid var(--line)}.nav{display:flex;overflow:auto;gap:5px}.nav button{white-space:nowrap;width:auto}.stats{grid-template-columns:1fr 1fr}.cards{grid-template-columns:1fr}}
+@media(max-width:560px){main{padding:14px}.form{grid-template-columns:1fr}.full{grid-column:auto}.top{align-items:flex-start}.top>a{display:none}.calendar{gap:4px}.day{min-height:58px;padding:6px}.actions{width:100%}}
+</style>
 
 <style>
-:root{
-  --green:#19e66b;
-  --green2:#08b653;
-  --bg:#050906;
-  --panel:#0b1510;
-  --panel2:#101d15;
-  --text:#f4fff7;
-  --muted:#91a198;
-  --border:rgba(255,255,255,.08);
-  --gold:#ffd447;
-  --red:#ff5364;
-  --blue:#4da3ff;
-}
-
-*{
-  box-sizing:border-box;
-  margin:0;
-  padding:0;
-}
-
-body{
-  font-family:Arial,Helvetica,sans-serif;
-  background:var(--bg);
-  color:var(--text);
-}
-
-button,
-input,
-select,
-textarea{
-  font:inherit;
-}
-
-button{
-  cursor:pointer;
-}
-
-a{
-  color:inherit;
-  text-decoration:none;
-}
-
-.nav{
-  height:72px;
-  position:sticky;
-  top:0;
-  z-index:100;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:0 4%;
-  background:rgba(5,9,6,.95);
-  border-bottom:1px solid var(--border);
-  backdrop-filter:blur(15px);
-}
-
-.brand{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  font-size:20px;
-  font-weight:900;
-}
-
-.brand img{
-  width:42px;
-  height:42px;
-  object-fit:contain;
-  border-radius:9px;
-}
-
-.nav-right{
-  display:flex;
-  align-items:center;
-  gap:10px;
-}
-
-.btn{
-  border:0;
-  border-radius:9px;
-  padding:10px 15px;
-  font-weight:800;
-  transition:.2s;
-}
-
-.btn:hover{
-  transform:translateY(-1px);
-}
-
-.green{
-  background:var(--green);
-  color:#031008;
-}
-
-.dark{
-  background:#142119;
-  color:white;
-  border:1px solid var(--border);
-}
-
-.red{
-  background:rgba(255,83,100,.12);
-  color:var(--red);
-  border:1px solid rgba(255,83,100,.2);
-}
-
-.gold{
-  background:rgba(255,212,71,.12);
-  color:var(--gold);
-  border:1px solid rgba(255,212,71,.2);
-}
-
-.blue{
-  background:rgba(77,163,255,.12);
-  color:var(--blue);
-  border:1px solid rgba(77,163,255,.2);
-}
-
-.container{
-  width:92%;
-  max-width:1500px;
-  margin:auto;
-  padding:35px 0 70px;
-}
-
-.header{
-  margin-bottom:30px;
-}
-
-.header .label{
-  display:inline-block;
-  color:var(--green);
-  background:rgba(25,230,107,.08);
-  border:1px solid rgba(25,230,107,.16);
-  padding:6px 11px;
-  border-radius:20px;
-  font-size:10px;
-  font-weight:900;
-  margin-bottom:10px;
-}
-
-.header h1{
-  font-size:35px;
-}
-
-.header p{
-  color:var(--muted);
-  margin-top:5px;
-}
-
-/* STATS */
-
-.stats{
-  display:grid;
-  grid-template-columns:repeat(5,1fr);
-  gap:14px;
-  margin-bottom:30px;
-}
-
-.stat{
-  background:var(--panel);
-  border:1px solid var(--border);
-  border-radius:15px;
-  padding:19px;
-}
-
-.stat small{
-  color:var(--muted);
-  font-size:11px;
-}
-
-.stat strong{
-  display:block;
-  font-size:30px;
-  margin-top:4px;
-}
-
-.stat.green-stat strong{
-  color:var(--green);
-}
-
-.stat.gold-stat strong{
-  color:var(--gold);
-}
-
-.stat.red-stat strong{
-  color:var(--red);
-}
-
-/* TABS */
-
-.dashboard-tabs{
-  display:flex;
-  gap:7px;
-  overflow:auto;
-  margin-bottom:20px;
-}
-
-.dashboard-tabs button{
-  white-space:nowrap;
-  border:1px solid var(--border);
-  color:#b8c5bc;
-  background:#0c1710;
-  padding:11px 17px;
-  border-radius:9px;
-  font-weight:800;
-}
-
-.dashboard-tabs button.active{
-  color:#031008;
-  background:var(--green);
-  border-color:var(--green);
-}
-
-/* PANELS */
-
-.panel{
-  background:var(--panel);
-  border:1px solid var(--border);
-  border-radius:17px;
-  padding:23px;
-  margin-bottom:20px;
-}
-
-.panel-head{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:15px;
-  margin-bottom:20px;
-}
-
-.panel-head h2{
-  font-size:21px;
-}
-
-.panel-head p{
-  color:var(--muted);
-  font-size:12px;
-  margin-top:4px;
-}
-
-/* FORM */
-
-.form-grid{
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:13px;
-}
-
-.form-group{
-  display:flex;
-  flex-direction:column;
-  gap:6px;
-}
-
-.form-group.full{
-  grid-column:1/-1;
-}
-
-.form-group label{
-  color:#afbbb3;
-  font-size:11px;
-  font-weight:800;
-}
-
-.input{
-  width:100%;
-  border:1px solid var(--border);
-  outline:none;
-  background:#07100a;
-  color:white;
-  border-radius:9px;
-  padding:12px;
-}
-
-.input:focus{
-  border-color:var(--green);
-}
-
-textarea.input{
-  min-height:90px;
-  resize:vertical;
-}
-
-.form-actions{
-  grid-column:1/-1;
-  display:flex;
-  gap:9px;
-  margin-top:5px;
-}
-
-/* FILTER */
-
-.filters{
-  display:grid;
-  grid-template-columns:1.5fr 1fr 1fr 1fr;
-  gap:10px;
-  margin-bottom:18px;
-}
-
-/* TABLE */
-
-.table-wrap{
-  overflow-x:auto;
-}
-
-table{
-  width:100%;
-  border-collapse:collapse;
-  min-width:1050px;
-}
-
-th{
-  color:#718078;
-  text-align:left;
-  font-size:10px;
-  text-transform:uppercase;
-  padding:12px;
-  border-bottom:1px solid var(--border);
-}
-
-td{
-  padding:13px 12px;
-  border-bottom:1px solid rgba(255,255,255,.05);
-  font-size:12px;
-}
-
-tr:hover td{
-  background:rgba(255,255,255,.015);
-}
-
-.team-cell{
-  font-weight:800;
-}
-
-.muted{
-  color:var(--muted);
-}
-
-.badge{
-  display:inline-block;
-  border-radius:20px;
-  padding:5px 8px;
-  font-size:9px;
-  font-weight:900;
-}
-
-.badge-free{
-  color:var(--green);
-  background:rgba(25,230,107,.1);
-}
-
-.badge-vip{
-  color:var(--gold);
-  background:rgba(255,212,71,.1);
-}
-
-.badge-both{
-  color:var(--blue);
-  background:rgba(77,163,255,.1);
-}
-
-.badge-pending{
-  color:var(--gold);
-  background:rgba(255,212,71,.08);
-}
-
-.badge-won{
-  color:var(--green);
-  background:rgba(25,230,107,.08);
-}
-
-.badge-lost{
-  color:var(--red);
-  background:rgba(255,83,100,.08);
-}
-
-.badge-expired{
-  color:var(--red);
-  background:rgba(255,83,100,.1);
-}
-
-.actions{
-  display:flex;
-  gap:6px;
-  flex-wrap:wrap;
-}
-
-.action-btn{
-  border:0;
-  border-radius:7px;
-  padding:7px 10px;
-  font-size:10px;
-  font-weight:900;
-}
-
-.edit{
-  color:#8ec5ff;
-  background:rgba(77,163,255,.1);
-}
-
-.delete{
-  color:var(--red);
-  background:rgba(255,83,100,.1);
-}
-
-.result-btn{
-  color:var(--gold);
-  background:rgba(255,212,71,.1);
-}
-
-/* USER CARDS */
-
-.user-grid{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:12px;
-}
-
-.user-card{
-  background:#0d1911;
-  border:1px solid var(--border);
-  border-radius:14px;
-  padding:18px;
-}
-
-.user-card.vip-active{
-  border-color:rgba(255,212,71,.3);
-  box-shadow:0 0 0 1px rgba(255,212,71,.04);
-}
-
-.user-top{
-  display:flex;
-  justify-content:space-between;
-  gap:10px;
-}
-
-.user-name{
-  font-weight:900;
-}
-
-.user-email{
-  color:var(--muted);
-  font-size:11px;
-  margin-top:3px;
-  word-break:break-all;
-}
-
-.user-meta{
-  margin-top:15px;
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:8px;
-  color:var(--muted);
-  font-size:10px;
-}
-
-.user-meta div{
-  background:#09120c;
-  border-radius:8px;
-  padding:9px;
-}
-
-.user-meta strong{
-  display:block;
-  color:#dce8df;
-  margin-top:3px;
-  font-size:11px;
-}
-
-.user-actions{
-  display:flex;
-  gap:7px;
-  margin-top:15px;
-}
-
-.payment-box{
-  margin-top:14px;
-  padding:12px;
-  border-radius:10px;
-  background:#08120b;
-  border:1px solid rgba(255,255,255,.05);
-}
-
-.payment-box small{
-  color:var(--muted);
-  font-size:9px;
-  text-transform:uppercase;
-}
-
-.payment-box strong{
-  display:block;
-  font-size:11px;
-  margin-top:4px;
-  word-break:break-word;
-}
-
-/* TOAST */
-
-.toast{
-  position:fixed;
-  right:20px;
-  bottom:20px;
-  z-index:5000;
-  padding:14px 18px;
-  border-radius:10px;
-  background:#14251a;
-  border:1px solid rgba(25,230,107,.2);
-  color:white;
-  display:none;
-  box-shadow:0 15px 40px rgba(0,0,0,.4);
-}
-
-.toast.show{
-  display:block;
-}
-
-/* MODAL */
-
-.modal{
-  position:fixed;
-  inset:0;
-  z-index:3000;
-  display:none;
-  align-items:center;
-  justify-content:center;
-  padding:20px;
-  background:rgba(0,0,0,.78);
-}
-
-.modal.show{
-  display:flex;
-}
-
-.modal-box{
-  width:100%;
-  max-width:500px;
-  max-height:90vh;
-  overflow:auto;
-  background:#0c1710;
-  border:1px solid var(--border);
-  border-radius:18px;
-  padding:25px;
-}
-
-.modal-head{
-  display:flex;
-  justify-content:space-between;
-  margin-bottom:20px;
-}
-
-.modal-head h2{
-  font-size:20px;
-}
-
-.close{
-  border:0;
-  background:none;
-  color:white;
-  font-size:25px;
-}
-
-.modal-actions{
-  display:flex;
-  gap:8px;
-  margin-top:18px;
-}
-
-.modal-info{
-  background:#08120b;
-  border:1px solid var(--border);
-  border-radius:10px;
-  padding:12px;
-  margin-bottom:16px;
-}
-
-.modal-info strong{
-  display:block;
-  margin-bottom:3px;
-}
-
-.modal-info span{
-  color:var(--muted);
-  font-size:11px;
-}
-
-/* EMPTY */
-
-.empty{
-  padding:45px 20px;
-  text-align:center;
-  color:var(--muted);
-}
-
-.loading{
-  color:var(--green);
-  text-align:center;
-  padding:30px;
-}
-
-/* MOBILE */
-
-@media(max-width:1050px){
-
-  .stats{
-    grid-template-columns:repeat(3,1fr);
-  }
-
-  .user-grid{
-    grid-template-columns:repeat(2,1fr);
-  }
-
-  .filters{
-    grid-template-columns:1fr 1fr;
-  }
-}
-
-@media(max-width:700px){
-
-  .nav{
-    padding:0 4%;
-  }
-
-  .brand span{
-    display:none;
-  }
-
-  .container{
-    width:94%;
-  }
-
-  .stats{
-    grid-template-columns:1fr 1fr;
-  }
-
-  .form-grid{
-    grid-template-columns:1fr;
-  }
-
-  .form-group.full{
-    grid-column:auto;
-  }
-
-  .form-actions{
-    grid-column:auto;
-    flex-wrap:wrap;
-  }
-
-  .filters{
-    grid-template-columns:1fr;
-  }
-
-  .user-grid{
-    grid-template-columns:1fr;
-  }
-
-  .header h1{
-    font-size:28px;
-  }
-
-  .user-meta{
-    grid-template-columns:1fr;
-  }
+#users .table table{min-width:1200px}
+#users .btn{margin:2px 0}
+#userSearch{min-width:220px}
+.compactFilters{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:14px}
+.compactFilters input,.compactFilters select{width:auto;min-width:145px;padding:9px 10px}
+.compactFilters input[type="search"]{min-width:220px}
+.rowActions{display:flex;gap:5px;flex-wrap:wrap}
+.rowActions .btn{padding:7px 9px;font-size:10px}
+.mini .btn{padding:7px 9px;font-size:10px}
+.table td .btn{white-space:nowrap}
+@media(max-width:560px){
+  #userSearch{width:100%;max-width:none!important}
 }
 </style>
 </head>
-
 <body>
-
-<header class="nav">
-
-  <a href="index.html" class="brand">
-    <img src="logo.png" alt="Sure for Sure">
-    <span>Sure for Sure</span>
-  </a>
-
-  <div class="nav-right">
-    <a href="index.html" class="btn dark">
-      View Website
-    </a>
+<div class="layout">
+<aside>
+  <div class="brand"><img src="logo.png" alt="Sure for Sure"><span>Sure for Sure<br><small style="color:var(--muted)">Admin Control Centre</small></span></div>
+  <div class="nav">
+    <button class="active" data-tab="dashboard">◈ Dashboard</button>
+    <button data-tab="events">▦ Event Calendar</button>
+    <button data-tab="preds">⚽ Predictions</button>
+    <button data-tab="results">✓ Results Calendar</button>
+    <button data-tab="users">👤 Users</button><button data-tab="codes">▣ Booking Codes</button>
   </div>
+</aside>
 
-</header>
+<main>
+<div class="top"><div><div style="color:var(--green);font-size:10px;font-weight:900;letter-spacing:.13em">ADMINISTRATION</div><h1 id="title">Dashboard</h1></div><a class="btn" href="index.html" target="_blank" rel="noopener">Public Site ↗</a></div>
 
+<div class="adminNotice"><span class="noticeDot"></span><span>Admin activity confirmations are enabled. Every successful save, update, delete, result settlement, and database error will show a notification.</span></div>
 
-<main class="container">
+<div class="stats">
+  <div class="stat">Events<b id="se">0</b></div>
+  <div class="stat">Predictions<b id="sp">0</b></div>
+  <div class="stat">Published Results<b id="sr">0</b></div>
+  <div class="stat">Booking Codes<b id="sc">0</b></div><div class="stat">Users<b id="su">0</b></div>
+</div>
 
-  <div class="header">
+<section id="dashboard" class="tab active">
+<div class="panel"><h2>Calendar-first workflow</h2><p>Create the event first, add predictions with exact kickoff times, then settle results by match date. All changes are saved directly to Firebase Realtime Database.</p>
+<div class="cards">
+<div class="mini"><b>1 · Event Calendar</b><p>Manage tournaments, leagues, special events and their date ranges.</p></div>
+<div class="mini"><b>2 · Prediction Calendar</b><p>Every match has its own date and kickoff time. Multiple predictions can share one day.</p></div>
+<div class="mini"><b>3 · Results Calendar</b><p>Settle matches and publish only the results you want visitors to see.</p></div>
+<div class="mini"><b>4 · Booking Codes</b><p>Keep FREE and VIP codes separate by bookmaker.</p></div>
+</div></div>
+</section>
 
-    <div class="label">
-      ADMIN CONTROL CENTER
-    </div>
+<section id="events" class="tab">
+<div class="panel">
+<div class="toolbar"><div><h2>Event Calendar</h2><p>Events are independent of individual match days.</p></div><div class="actions"><button class="btn" id="ep">‹</button><button class="btn" id="et">Today</button><button class="btn" id="en">›</button></div></div>
+<div id="em" style="font-weight:900;margin-top:12px"></div><div class="calendar" id="ec"></div>
+<div class="panel" style="margin-top:14px"><h2 id="eventFormTitle">Create Event</h2>
+<form id="ef" class="form">
+<input type="hidden" id="eid">
+<div class="field"><label>Event name</label><input id="ename" required placeholder="e.g. Champions League"></div>
+<div class="field"><label>Status</label><select id="estatus"><option value="Active">Active</option><option value="Archived">Archived</option></select></div>
+<div class="field"><label>Start date</label><input id="estart" type="date" required></div>
+<div class="field"><label>End date</label><input id="eend" type="date" required></div>
+<div class="field full"><label>Description</label><textarea id="edesc"></textarea></div>
+</form>
+<div class="actions"><button class="btn green" id="saveEventBtn">Save Event</button><button class="btn" id="newEventBtn">New</button></div>
+</div>
+<div id="eventList" class="cards"></div>
+</div>
+</section>
 
-    <h1>
-      Sure for Sure Dashboard
-    </h1>
+<section id="preds" class="tab">
+<div class="panel"><h2 id="predFormTitle">Create Prediction</h2><p>Use an event when the prediction belongs to a tournament or league event. “FREE + VIP” means the prediction is visible publicly.</p>
+<form id="pf" class="form">
+<input type="hidden" id="pid">
+<div class="field"><label>Event</label><select id="pe"><option value="">Standalone</option></select></div>
+<div class="field"><label>Match date & time</label><input id="pdate" type="datetime-local" required></div>
+<div class="field"><label>Country</label><input id="country"></div>
+<div class="field"><label>League</label><input id="league" required></div>
+<div class="field"><label>Home team</label><input id="home" required></div>
+<div class="field"><label>Away team</label><input id="away" required></div>
+<div class="field"><label>Prediction</label><input id="pick" required placeholder="Over 1.5 Goals"></div>
+<div class="field"><label>Access</label><select id="access"><option value="free">FREE</option><option value="vip">VIP</option><option value="both">FREE + VIP</option></select></div>
+</form>
+<div class="actions"><button class="btn green" id="savePredBtn">Publish / Update</button><button class="btn" id="newPredBtn">New</button></div>
+</div>
+<div class="panel" style="margin-top:14px"><div class="toolbar"><div><h2>Daily Prediction Browser</h2><p>All predictions scheduled for the selected day.</p></div><input id="pb" type="date"></div>
+<div class="table"><table><thead><tr><th>Date & Time</th><th>Match</th><th>Event</th><th>Pick</th><th>Access</th><th>Actions</th></tr></thead><tbody id="ptbl"></tbody></table></div></div>
+</section>
 
-    <p>
-      Manage predictions, results, users, VIP members and testimonials.
-    </p>
-
-  </div>
-
-
-  <!-- =========================
-       STATISTICS
-  ========================= -->
-
-  <section class="stats">
-
-    <div class="stat green-stat">
-      <small>Total Users</small>
-      <strong id="totalUsers">0</strong>
-    </div>
-
-    <div class="stat gold-stat">
-      <small>Active VIP Members</small>
-      <strong id="totalVIP">0</strong>
-    </div>
-
-    <div class="stat">
-      <small>Total Predictions</small>
-      <strong id="totalPredictions">0</strong>
-    </div>
-
-    <div class="stat green-stat">
-      <small>Won</small>
-      <strong id="totalWon">0</strong>
-    </div>
-
-    <div class="stat red-stat">
-      <small>Lost</small>
-      <strong id="totalLost">0</strong>
-    </div>
-
-  </section>
-
-
-  <!-- =========================
-       TABS
-  ========================= -->
-
-  <div class="dashboard-tabs">
-
-    <button
-      class="active"
-      onclick="showTab('predictionsTab',this)">
-      ⚽ Predictions
-    </button>
-
-    <button
-      onclick="showTab('usersTab',this)">
-      👥 Users
-    </button>
-
-    <button
-      onclick="showTab('testimonialsTab',this)">
-      ⭐ Testimonials
-    </button>
-
-  </div>
+<section id="results" class="tab">
+<div class="panel"><div class="toolbar"><div><h2>Results Calendar</h2><p>Select a date, then settle every prediction scheduled for that date.</p></div><div class="actions"><button class="btn" id="rp">‹</button><button class="btn" id="rt">Today</button><button class="btn" id="rn">›</button></div></div>
+<div id="rm" style="font-weight:900;margin-top:12px"></div><div class="calendar" id="rc"></div>
+<div class="table"><table><thead><tr><th>Match</th><th>Time</th><th>Prediction</th><th>Score</th><th>Result</th><th>Published</th><th>Action</th></tr></thead><tbody id="rtbl"></tbody></table></div>
+</div>
+</section>
 
 
-  <!-- ==================================================
-       PREDICTIONS TAB
-  ================================================== -->
-
-  <section id="predictionsTab">
-
-    <div class="panel">
-
-      <div class="panel-head">
-
-        <div>
-          <h2 id="predictionFormTitle">
-            Post New Prediction
-          </h2>
-
-          <p>
-            Add a new football game or edit an existing one.
-          </p>
-        </div>
-
-        <button
-          class="btn dark"
-          onclick="clearPredictionForm()">
-          + New
-        </button>
-
+<section id="users" class="tab">
+  <div class="panel">
+    <div class="toolbar">
+      <div>
+        <h2>User Management</h2>
+        <p>Edit registered user profiles and remove user profiles from Realtime Database.</p>
       </div>
+      <div class="compactFilters">
+        <input id="userSearch" type="search" placeholder="Search users...">
+        <select id="userRoleFilter"><option value="">All roles</option><option value="user">Users</option><option value="admin">Admins</option></select>
+        <select id="userStatusFilter"><option value="">All status</option><option value="active">Active</option><option value="disabled">Disabled</option></select>
+      </div>
+    </div>
 
+    <div class="panel" style="margin-top:14px">
+      <h2>Create / Edit User Profile</h2>
+      <p class="muted">Create a real email/password Firebase login or edit an existing profile. Google accounts are created from the public login page.</p>
+      <form id="uf" class="form">
+        <input type="hidden" id="uid">
 
-      <form
-        id="predictionForm"
-        class="form-grid"
-        onsubmit="savePrediction(event)">
-
-        <input
-          type="hidden"
-          id="predictionId">
-
-
-        <div class="form-group">
-
-          <label>Week</label>
-
-          <input
-            id="week"
-            class="input"
-            placeholder="e.g. Week 1"
-            required>
-
+        <div class="field">
+          <label>First name</label>
+          <input id="ufirst" required>
         </div>
 
+        <div class="field">
+          <label>Last name</label>
+          <input id="ulast" required>
+        </div>
 
-        <div class="form-group">
+        <div class="field">
+          <label>Username</label>
+          <input id="uusername">
+        </div>
 
+        <div class="field">
+          <label>Email</label>
+          <input id="uemail" type="email" required>
+        </div>
+
+        <div class="field">
+          <label>Phone</label>
+          <input id="uphone">
+        </div>
+        <div class="field">
+          <label>Temporary Password <small>(new account only)</small></label>
+          <input id="upassword" type="password" minlength="6" autocomplete="new-password" placeholder="Minimum 6 characters">
+        </div>
+
+        <div class="field">
           <label>Country</label>
-
-          <input
-            id="country"
-            class="input"
-            placeholder="e.g. England"
-            required>
-
+          <input id="ucountry">
         </div>
 
-
-        <div class="form-group">
-
-          <label>League</label>
-
-          <input
-            id="league"
-            class="input"
-            placeholder="e.g. Premier League"
-            required>
-
-        </div>
-
-
-        <div class="form-group">
-
-          <label>Match Date & Time</label>
-
-          <input
-            id="matchDate"
-            class="input"
-            type="datetime-local"
-            required>
-
-        </div>
-
-
-        <div class="form-group">
-
-          <label>Home Team</label>
-
-          <input
-            id="homeTeam"
-            class="input"
-            placeholder="Home team"
-            required>
-
-        </div>
-
-
-        <div class="form-group">
-
-          <label>Away Team</label>
-
-          <input
-            id="awayTeam"
-            class="input"
-            placeholder="Away team"
-            required>
-
-        </div>
-
-
-        <div class="form-group">
-
-          <label>Prediction</label>
-
-          <input
-            id="prediction"
-            class="input"
-            placeholder="e.g. Over 1.5 Goals"
-            required>
-
-        </div>
-
-
-        <div class="form-group">
-
-          <label>Visibility</label>
-
-          <select id="visibility" class="input">
-
-            <option value="free">
-              Free Only
-            </option>
-
-            <option value="vip">
-              VIP Only
-            </option>
-
-            <option value="both">
-              Free + VIP
-            </option>
-
+        <div class="field">
+          <label>Role</label>
+          <select id="urole">
+            <option value="user">User</option>
+            <option value="admin">Administrator</option>
           </select>
-
         </div>
 
-
-        <div class="form-group">
-
-          <label>Result</label>
-
-          <select id="result" class="input">
-
-            <option value="Pending">
-              Pending
-            </option>
-
-            <option value="Won">
-              Won
-            </option>
-
-            <option value="Lost">
-              Lost
-            </option>
-
-            <option value="Void">
-              Void
-            </option>
-
+        <div class="field">
+          <label>Status</label>
+          <select id="ustatus">
+            <option value="active">Active</option>
+            <option value="disabled">Disabled</option>
           </select>
-
         </div>
-
-
-        <div class="form-group">
-
-          <label>Match Result / Score</label>
-
-          <input
-            id="score"
-            class="input"
-            placeholder="e.g. 2 - 1">
-
-        </div>
-
-
-        <div class="form-group full">
-
-          <label>Admin Note</label>
-
-          <textarea
-            id="adminNote"
-            class="input"
-            placeholder="Optional note about this prediction"></textarea>
-
-        </div>
-
-
-        <div class="form-actions">
-
-          <button
-            class="btn green"
-            type="submit"
-            id="savePredictionBtn">
-            Publish Prediction
-          </button>
-
-          <button
-            class="btn dark"
-            type="button"
-            onclick="clearPredictionForm()">
-            Cancel / Clear
-          </button>
-
-        </div>
-
       </form>
 
+      <div class="actions">
+        <button type="button" class="btn green" id="saveUserBtn">Save User</button>
+        <button type="button" class="btn" id="newUserBtn">New</button>
+      </div>
     </div>
 
-
-    <div class="panel">
-
-      <div class="panel-head">
-
-        <div>
-          <h2>All Predictions</h2>
-
-          <p>
-            Edit, update results or delete games.
-          </p>
-        </div>
-
-      </div>
-
-
-      <div class="filters">
-
-        <input
-          id="searchPredictions"
-          class="input"
-          placeholder="Search team, league or country..."
-          oninput="renderPredictions()">
-
-        <select
-          id="weekFilter"
-          class="input"
-          onchange="renderPredictions()">
-
-          <option value="all">
-            All Weeks
-          </option>
-
-        </select>
-
-
-        <select
-          id="visibilityFilter"
-          class="input"
-          onchange="renderPredictions()">
-
-          <option value="all">
-            All Access
-          </option>
-
-          <option value="free">
-            Free
-          </option>
-
-          <option value="vip">
-            VIP
-          </option>
-
-          <option value="both">
-            Both
-          </option>
-
-        </select>
-
-
-        <select
-          id="resultFilter"
-          class="input"
-          onchange="renderPredictions()">
-
-          <option value="all">
-            All Results
-          </option>
-
-          <option value="Pending">
-            Pending
-          </option>
-
-          <option value="Won">
-            Won
-          </option>
-
-          <option value="Lost">
-            Lost
-          </option>
-
-          <option value="Void">
-            Void
-          </option>
-
-        </select>
-
-      </div>
-
-
-      <div class="table-wrap">
-
-        <table>
-
-          <thead>
-
-            <tr>
-              <th>Match</th>
-              <th>League</th>
-              <th>Week</th>
-              <th>Prediction</th>
-              <th>Access</th>
-              <th>Result</th>
-              <th>Actions</th>
-            </tr>
-
-          </thead>
-
-          <tbody id="predictionTable">
-
-            <tr>
-              <td colspan="7" class="loading">
-                Loading predictions...
-              </td>
-            </tr>
-
-          </tbody>
-
-        </table>
-
-      </div>
-
+    <div class="table">
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Country</th>
+            <th>Role</th>
+            <th>Status</th>
+            <th>Online</th>
+            <th>Joined</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="utbl">
+          <tr><td colspan="10" class="empty">Loading users...</td></tr>
+        </tbody>
+      </table>
     </div>
-
-  </section>
-
-
-  <!-- ==================================================
-       USERS TAB
-  ================================================== -->
-
-  <section
-    id="usersTab"
-    style="display:none">
-
-    <div class="panel">
-
-      <div class="panel-head">
-
-        <div>
-          <h2>All Registered Users</h2>
-
-          <p>
-            Confirm payment and activate or remove VIP access.
-          </p>
-        </div>
-
-        <button
-          class="btn dark"
-          onclick="loadUsers()">
-          ↻ Refresh Users
-        </button>
-
-      </div>
-
-
-      <div class="filters">
-
-        <input
-          id="searchUsers"
-          class="input"
-          placeholder="Search name or email..."
-          oninput="renderUsers()">
-
-        <select
-          id="userStatusFilter"
-          class="input"
-          onchange="renderUsers()">
-
-          <option value="all">
-            All Users
-          </option>
-
-          <option value="vip">
-            Active VIP
-          </option>
-
-          <option value="free">
-            Free
-          </option>
-
-          <option value="expired">
-            Expired VIP
-          </option>
-
-        </select>
-
-      </div>
-
-
-      <div
-        class="user-grid"
-        id="userGrid">
-
-        <div class="empty">
-          Loading users...
-        </div>
-
-      </div>
-
-    </div>
-
-  </section>
-
-
-  <!-- ==================================================
-       TESTIMONIALS TAB
-  ================================================== -->
-
-  <section
-    id="testimonialsTab"
-    style="display:none">
-
-    <div class="panel">
-
-      <div class="panel-head">
-
-        <div>
-          <h2>Testimonials</h2>
-
-          <p>
-            Approve, edit or delete testimonials.
-          </p>
-        </div>
-
-      </div>
-
-
-      <div id="testimonialAdminList">
-
-        <div class="empty">
-          Loading testimonials...
-        </div>
-
-      </div>
-
-    </div>
-
-  </section>
-
+  </div>
+</section>
+<section id="codes" class="tab">
+<div class="panel"><h2 id="codeFormTitle">Create Booking Code</h2><p>Separate public FREE codes from protected VIP codes.</p>
+<form id="cf" class="form">
+<input type="hidden" id="cid">
+<div class="field"><label>Platform</label><select id="platform"><option>SportyBet</option><option>Bet9ja</option><option>MSport</option></select></div>
+<div class="field"><label>Access</label><select id="caccess"><option value="free">FREE</option><option value="vip">VIP</option></select></div>
+<div class="field"><label>Booking code</label><input id="cvalue" required></div>
+<div class="field"><label>Status</label><select id="cactive"><option value="true">Active</option><option value="false">Hidden</option></select></div>
+<div class="field full"><label>Note</label><input id="cnote"></div>
+</form>
+<div class="actions"><button class="btn green" id="saveCodeBtn">Save Code</button><button class="btn" id="newCodeBtn">New</button></div>
+<div id="clist" class="cards"></div>
+</div>
+</section>
 </main>
-
-
-<!-- ==================================================
-     USER / VIP MODAL
-================================================== -->
-
-<div class="modal" id="userModal">
-
-  <div class="modal-box">
-
-    <div class="modal-head">
-
-      <div>
-        <h2>VIP User Management</h2>
-
-        <p
-          style="
-            color:#91a198;
-            font-size:11px;
-            margin-top:4px;
-          ">
-          Activate VIP only after confirming payment.
-        </p>
-      </div>
-
-      <button
-        class="close"
-        onclick="closeModal('userModal')">
-        ×
-      </button>
-
-    </div>
-
-
-    <input
-      type="hidden"
-      id="selectedUserId">
-
-
-    <div class="modal-info">
-
-      <strong id="modalUserName">
-        User
-      </strong>
-
-      <span id="modalUserEmail">
-        -
-      </span>
-
-    </div>
-
-
-    <div class="form-group">
-
-      <label>
-        VIP Access
-      </label>
-
-      <select
-        id="userVIP"
-        class="input"
-        onchange="toggleVIPFields()">
-
-        <option value="false">
-          Free User — No VIP Access
-        </option>
-
-        <option value="true">
-          VIP Active — Grant VIP Access
-        </option>
-
-      </select>
-
-    </div>
-
-
-    <br>
-
-
-    <div id="vipFields">
-
-      <div class="form-group">
-
-        <label>
-          VIP Expiry Date
-        </label>
-
-        <input
-          id="vipExpiry"
-          class="input"
-          type="date">
-
-      </div>
-
-
-      <br>
-
-
-      <div class="form-group">
-
-        <label>
-          Payment Status
-        </label>
-
-        <select
-          id="paymentStatus"
-          class="input">
-
-          <option value="confirmed">
-            Payment Confirmed
-          </option>
-
-          <option value="pending">
-            Payment Pending
-          </option>
-
-          <option value="not_paid">
-            Not Paid
-          </option>
-
-        </select>
-
-      </div>
-
-
-      <br>
-
-
-      <div class="form-group">
-
-        <label>
-          Payment Reference
-        </label>
-
-        <input
-          id="paymentReference"
-          class="input"
-          placeholder="e.g. transaction ID">
-
-      </div>
-
-
-      <br>
-
-
-      <div class="form-group">
-
-        <label>
-          Admin Note
-        </label>
-
-        <textarea
-          id="vipAdminNote"
-          class="input"
-          placeholder="e.g. Payment confirmed via bank transfer"></textarea>
-
-      </div>
-
-    </div>
-
-
-    <div class="modal-actions">
-
-      <button
-        class="btn green"
-        onclick="saveUser()">
-        Save VIP Access
-      </button>
-
-      <button
-        class="btn dark"
-        onclick="closeModal('userModal')">
-        Cancel
-      </button>
-
-    </div>
-
-  </div>
-
 </div>
-
-
-<!-- ==================================================
-     RESULT MODAL
-================================================== -->
-
-<div class="modal" id="resultModal">
-
-  <div class="modal-box">
-
-    <div class="modal-head">
-
-      <div>
-        <h2>Update Result</h2>
-
-        <p style="color:#91a198;font-size:11px;margin-top:4px">
-          Update the result after the match.
-        </p>
-      </div>
-
-      <button
-        class="close"
-        onclick="closeModal('resultModal')">
-        ×
-      </button>
-
-    </div>
-
-
-    <input
-      type="hidden"
-      id="resultPredictionId">
-
-
-    <div class="form-group">
-
-      <label>
-        Result
-      </label>
-
-      <select
-        id="quickResult"
-        class="input">
-
-        <option value="Pending">
-          Pending
-        </option>
-
-        <option value="Won">
-          Won
-        </option>
-
-        <option value="Lost">
-          Lost
-        </option>
-
-        <option value="Void">
-          Void
-        </option>
-
-      </select>
-
-    </div>
-
-
-    <br>
-
-
-    <div class="form-group">
-
-      <label>
-        Final Score
-      </label>
-
-      <input
-        id="quickScore"
-        class="input"
-        placeholder="e.g. 2 - 1">
-
-    </div>
-
-
-    <div class="modal-actions">
-
-      <button
-        class="btn green"
-        onclick="saveQuickResult()">
-        Save Result
-      </button>
-
-      <button
-        class="btn dark"
-        onclick="closeModal('resultModal')">
-        Cancel
-      </button>
-
-    </div>
-
-  </div>
-
-</div>
-
-
 <div class="toast" id="toast"></div>
 
-
 <script type="module">
+import{initializeApp}from'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
+import{getDatabase,ref,onValue,push,set,update,remove}from'https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js';
 
-/* ==================================================
-   FIREBASE
-================================================== */
+const app=initializeApp({
+  apiKey:'AIzaSyDZwA8UdtREPfoKDO3xQqTYOwb3SRx2sys',
+  authDomain:'number-3b97a.firebaseapp.com',
+  databaseURL:'https://number-3b97a-default-rtdb.firebaseio.com',
+  projectId:'number-3b97a',
+  storageBucket:'number-3b97a.firebasestorage.app',
+  messagingSenderId:'1024894306844',
+  appId:'1:1024894306844:web:5f0a7058a948ef71beadd9'
+});
+const db=getDatabase(app);
 
-import {
-  initializeApp
-} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+let P=[],E=[],C=[],U=[],ec=new Date(),rc=new Date(),rd=key(new Date()),bd=key(new Date());
 
-import {
-  getDatabase,
-  ref,
-  get,
-  set,
-  push,
-  update,
-  remove
-} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
-
-
-const firebaseConfig = {
-
-  apiKey:
-    "AIzaSyDZwA8UdtREPfoKDO3xQqTYOwb3SRx2sys",
-
-  authDomain:
-    "number-3b97a.firebaseapp.com",
-
-  databaseURL:
-    "https://number-3b97a-default-rtdb.firebaseio.com",
-
-  projectId:
-    "number-3b97a",
-
-  storageBucket:
-    "number-3b97a.firebasestorage.app",
-
-  messagingSenderId:
-    "1024894306844",
-
-  appId:
-    "1:1024894306844:web:5f0a7058a948ef71beadd9"
-
-};
-
-
-const app =
-  initializeApp(firebaseConfig);
-
-const db =
-  getDatabase(app);
-
-
-/* ==================================================
-   LOCAL STATE
-================================================== */
-
-let predictions = [];
-let users = [];
-let testimonials = [];
-
-
-/* ==================================================
-   LOAD EVERYTHING
-================================================== */
-
-async function loadDashboard(){
-
-  try{
-
-    await Promise.all([
-      loadPredictions(),
-      loadUsers(),
-      loadTestimonials()
-    ]);
-
-    updateStats();
-
-  }catch(error){
-
-    console.error(error);
-
-    showToast(
-      "Could not load Firebase data."
-    );
-
-  }
-
+const $=id=>document.getElementById(id);
+const bool=v=>v===true||v==='true'||v===1||v==='1';
+function key(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function dk(v){return v?String(v).slice(0,10):''}
+function esc(s){return String(s??'').replace(/[&<>"']/g,x=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[x]))}
+function en(id){return E.find(e=>e.id===id)?.name||id||'Standalone'}
+let toastTimer=null;
+function toast(message,type='success'){
+  const el=$('toast');
+  if(!el)return;
+  const icons={success:'✓',error:'✕',warning:'!',info:'i'};
+  el.className='toast show '+type;
+  el.innerHTML='<span class="toastIcon">'+(icons[type]||'✓')+'</span><span class="toastText">'+esc(message)+'</span>';
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>{el.classList.remove('show')},3200);
+}
+function adminAlert(message,type='info'){
+  toast(message,type);
+}
+function formatDate(v){if(!v)return'—';const d=new Date(v);return isNaN(d)?esc(v):d.toLocaleString()}
+function showTab(id){
+  const b=document.querySelector(`[data-tab="${id}"]`);
+  if(b)b.click();
 }
 
-
-/* ==================================================
-   PREDICTIONS
-================================================== */
-
-async function loadPredictions(){
-
-  const snapshot =
-    await get(
-      ref(db,"predictions")
-    );
-
-
-  if(!snapshot.exists()){
-
-    predictions = [];
-
-  }else{
-
-    const data =
-      snapshot.val();
-
-    predictions =
-      Object.entries(data)
-      .map(([id,item])=>({
-        id,
-        ...(item || {})
-      }));
-
+function cal(cur,root,title,sel,click,count){
+  let y=cur.getFullYear(),m=cur.getMonth(),f=new Date(y,m,1).getDay(),n=new Date(y,m+1,0).getDate(),pr=new Date(y,m,0).getDate(),r=$(root);
+  $(title).textContent=cur.toLocaleDateString(undefined,{month:'long',year:'numeric'});
+  r.innerHTML=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(x=>`<div class=dow>${x}</div>`).join('');
+  for(let i=0;i<42;i++){
+    let x=i-f+1,mut=x<1||x>n,num=x<1?pr+x:x>n?x-n:x,d=new Date(y,m,x),k=key(d),c=count(k);
+    r.insertAdjacentHTML('beforeend',`<button class="day ${mut?'muted':''} ${k===sel?'sel':''}" data-k="${k}"><b>${num}</b>${c?`<span class=count>● ${c}</span>`:''}</button>`);
   }
-
-
-  predictions.sort(
-    (a,b)=>
-      (b.createdAt || 0) -
-      (a.createdAt || 0)
-  );
-
-
-  updateWeekFilter();
-
-  renderPredictions();
-
+  r.querySelectorAll('.day').forEach(b=>b.onclick=()=>click(b.dataset.k));
 }
 
-
-/* ==================================================
-   WEEK FILTER
-================================================== */
-
-function updateWeekFilter(){
-
-  const select =
-    document.getElementById(
-      "weekFilter"
-    );
-
-  const current =
-    select.value;
-
-  const weeks = [
-    ...new Set(
-      predictions
-      .map(p=>p.week)
-      .filter(Boolean)
-    )
-  ];
-
-
-  select.innerHTML =
-    `<option value="all">All Weeks</option>`;
-
-
-  weeks
-    .sort()
-    .forEach(week=>{
-
-      const option =
-        document.createElement(
-          "option"
-        );
-
-      option.value = week;
-      option.textContent = week;
-
-      select.appendChild(option);
-
-    });
-
-
-  if(weeks.includes(current)){
-
-    select.value = current;
-
-  }
-
+function renderEvents(){
+  cal(ec,'ec','em','',d=>{
+    let a=E.filter(e=>String(e.startDate||'')<=d&&String(e.endDate||'')>=d);
+    $('eventList').innerHTML=a.length?a.map(e=>`
+      <div class=mini>
+        <div class=miniTop><b>${esc(e.name)}</b><span class="pill ${e.status==='Archived'?'py':'pg'}">${esc(e.status||'Active')}</span></div>
+        <p>${esc(e.startDate||'')} → ${esc(e.endDate||'')}</p>
+        <p>${esc(e.description||'')}</p>
+        <button class=btn data-action="edit-event" data-id="${esc(e.id)}">Edit</button>
+        <button class="btn danger" data-action="delete-event" data-id="${esc(e.id)}">Delete</button>
+      </div>`).join(''):'<div class=empty>No event on this date.</div>';
+  },d=>E.filter(e=>String(e.startDate||'')<=d&&String(e.endDate||'')>=d).length);
 }
 
-
-/* ==================================================
-   RENDER PREDICTIONS
-================================================== */
-
-window.renderPredictions =
-function(){
-
-  const table =
-    document.getElementById(
-      "predictionTable"
-    );
-
-
-  const search =
-    document.getElementById(
-      "searchPredictions"
-    )
-    .value
-    .toLowerCase()
-    .trim();
-
-
-  const week =
-    document.getElementById(
-      "weekFilter"
-    ).value;
-
-
-  const visibility =
-    document.getElementById(
-      "visibilityFilter"
-    ).value;
-
-
-  const result =
-    document.getElementById(
-      "resultFilter"
-    ).value;
-
-
-  const filtered =
-    predictions.filter(p=>{
-
-      const text = (
-
-        (p.homeTeam || "") +
-        " " +
-        (p.awayTeam || "") +
-        " " +
-        (p.league || "") +
-        " " +
-        (p.country || "")
-
-      ).toLowerCase();
-
-
-      if(
-        search &&
-        !text.includes(search)
-      ){
-
-        return false;
-
-      }
-
-
-      if(
-        week !== "all" &&
-        p.week !== week
-      ){
-
-        return false;
-
-      }
-
-
-      if(
-        visibility !== "all" &&
-        p.visibility !== visibility
-      ){
-
-        return false;
-
-      }
-
-
-      if(
-        result !== "all" &&
-        (p.result || "Pending") !== result
-      ){
-
-        return false;
-
-      }
-
-
-      return true;
-
-    });
-
-
-  if(!filtered.length){
-
-    table.innerHTML = `
-      <tr>
-        <td colspan="7">
-          <div class="empty">
-            No predictions found.
-          </div>
-        </td>
-      </tr>
-    `;
-
-    return;
-
-  }
-
-
-  table.innerHTML =
-    filtered.map(p=>{
-
-      const access =
-        p.visibility || "free";
-
-
-      const accessClass =
-        access === "vip"
-          ? "badge-vip"
-          : access === "both"
-            ? "badge-both"
-            : "badge-free";
-
-
-      const accessText =
-        access === "vip"
-          ? "VIP"
-          : access === "both"
-            ? "BOTH"
-            : "FREE";
-
-
-      const res =
-        p.result || "Pending";
-
-
-      const resultClass =
-        res === "Won"
-          ? "badge-won"
-          : res === "Lost"
-            ? "badge-lost"
-            : "badge-pending";
-
-
-      return `
-
-        <tr>
-
-          <td>
-
-            <div class="team-cell">
-
-              ${escapeHTML(
-                p.homeTeam || "-"
-              )}
-
-              <span class="muted">
-                vs
-              </span>
-
-              ${escapeHTML(
-                p.awayTeam || "-"
-              )}
-
-            </div>
-
-            <small class="muted">
-
-              ${formatDate(
-                p.matchDate
-              )}
-
-            </small>
-
-          </td>
-
-
-          <td>
-
-            <strong>
-              ${escapeHTML(
-                p.league || "-"
-              )}
-            </strong>
-
-            <br>
-
-            <small class="muted">
-
-              ${escapeHTML(
-                p.country || "-"
-              )}
-
-            </small>
-
-          </td>
-
-
-          <td>
-            ${escapeHTML(
-              p.week || "-"
-            )}
-          </td>
-
-
-          <td>
-
-            <strong style="color:#19e66b">
-
-              ${escapeHTML(
-                p.prediction || "-"
-              )}
-
-            </strong>
-
-          </td>
-
-
-          <td>
-
-            <span class="badge ${accessClass}">
-
-              ${accessText}
-
-            </span>
-
-          </td>
-
-
-          <td>
-
-            <span class="badge ${resultClass}">
-
-              ${escapeHTML(res)}
-
-            </span>
-
-            ${
-              p.score
-                ? `
-                  <br>
-                  <small class="muted">
-                    ${escapeHTML(p.score)}
-                  </small>
-                `
-                : ""
-            }
-
-          </td>
-
-
-          <td>
-
-            <div class="actions">
-
-              <button
-                class="action-btn edit"
-                onclick="editPrediction('${p.id}')">
-
-                Edit
-
-              </button>
-
-
-              <button
-                class="action-btn result-btn"
-                onclick="openResultModal('${p.id}')">
-
-                Result
-
-              </button>
-
-
-              <button
-                class="action-btn delete"
-                onclick="deletePrediction('${p.id}')">
-
-                Delete
-
-              </button>
-
-            </div>
-
-          </td>
-
-        </tr>
-
-      `;
-
-    }).join("");
-
-};
-
-
-/* ==================================================
-   SAVE PREDICTION
-================================================== */
-
-window.savePrediction =
-async function(event){
-
-  event.preventDefault();
-
-
-  const id =
-    document.getElementById(
-      "predictionId"
-    ).value;
-
-
-  const data = {
-
-    week:
-      document.getElementById(
-        "week"
-      ).value.trim(),
-
-    country:
-      document.getElementById(
-        "country"
-      ).value.trim(),
-
-    league:
-      document.getElementById(
-        "league"
-      ).value.trim(),
-
-    matchDate:
-      document.getElementById(
-        "matchDate"
-      ).value,
-
-    homeTeam:
-      document.getElementById(
-        "homeTeam"
-      ).value.trim(),
-
-    awayTeam:
-      document.getElementById(
-        "awayTeam"
-      ).value.trim(),
-
-    prediction:
-      document.getElementById(
-        "prediction"
-      ).value.trim(),
-
-    visibility:
-      document.getElementById(
-        "visibility"
-      ).value,
-
-    result:
-      document.getElementById(
-        "result"
-      ).value,
-
-    score:
-      document.getElementById(
-        "score"
-      ).value.trim(),
-
-    adminNote:
-      document.getElementById(
-        "adminNote"
-      ).value.trim(),
-
-    updatedAt:
-      Date.now()
-
+function fillEvents(){
+  $('pe').innerHTML='<option value="">Standalone</option>'+
+    E.filter(e=>e.status!=='Archived').map(e=>`<option value="${esc(e.id)}">${esc(e.name)} · ${esc(e.startDate||'')}</option>`).join('');
+}
+
+function renderPreds(){
+  let a=P.filter(p=>dk(p.matchDate)===bd).sort((x,y)=>String(x.matchDate).localeCompare(String(y.matchDate)));
+  $('ptbl').innerHTML=a.length?a.map(p=>`
+    <tr>
+      <td>${esc(String(p.matchDate||'').replace('T',' '))}</td>
+      <td><b>${esc(p.homeTeam)} vs ${esc(p.awayTeam)}</b><br><span class=muted>${esc(p.league)}</span></td>
+      <td>${esc(en(p.eventId))}</td>
+      <td>${esc(p.prediction)}</td>
+      <td><span class="pill ${p.visibility==='vip'?'py':'pg'}">${esc(p.visibility||'free')}</span></td>
+      <td>
+        <button class=btn data-action="edit-pred" data-id="${esc(p.id)}">Edit</button>
+        <button class="btn danger" data-action="delete-pred" data-id="${esc(p.id)}">Delete</button>
+      </td>
+    </tr>`).join(''):'<tr><td colspan=6 class=empty>No predictions for this date.</td></tr>';
+}
+
+function renderResults(){
+  cal(rc,'rc','rm',rd,d=>{rd=d;renderResults()},d=>P.filter(p=>bool(p.resultPublished)&&dk(p.matchDate)===d).length);
+  let a=P.filter(p=>dk(p.matchDate)===rd);
+  $('rtbl').innerHTML=a.length?a.map(p=>`
+    <tr>
+      <td><b>${esc(p.homeTeam)} vs ${esc(p.awayTeam)}</b><br><span class=muted>${esc(p.league)}</span></td>
+      <td>${esc((p.matchDate||'').replace('T',' '))}</td>
+      <td>${esc(p.prediction)}</td>
+      <td>${esc(p.score||'—')}</td>
+      <td><span class="pill ${p.result==='Won'?'pg':p.result==='Lost'?'pr':'py'}">${esc(p.result||'Pending')}</span></td>
+      <td>${bool(p.resultPublished)?'<span class="pill pg">Published</span>':'<span class="pill py">Hidden</span>'}</td>
+      <td><button class=btn data-action="settle" data-id="${esc(p.id)}">Settle</button></td>
+    </tr>`).join(''):'<tr><td colspan=7 class=empty>No predictions for this date.</td></tr>';
+}
+
+function renderCodes(){
+  $('clist').innerHTML=C.length?C.map(c=>`
+    <div class=mini>
+      <div class=miniTop><b>${esc(c.platform)} · ${String(c.visibility||'free').toUpperCase()}</b><span class="pill ${c.active===false?'pr':'pg'}">${c.active===false?'Hidden':'Active'}</span></div>
+      <p style="font-family:monospace;font-size:18px;color:var(--g)">${esc(c.code)}</p>
+      <button class=btn data-action="edit-code" data-id="${esc(c.id)}">Edit</button>
+      <button class="btn danger" data-action="delete-code" data-id="${esc(c.id)}">Delete</button>
+    </div>`).join(''):'<div class=empty>No booking codes.</div>';
+}
+
+function renderUsers(){
+  const q=($('userSearch')?.value||'').trim().toLowerCase();
+  const role=($('userRoleFilter')?.value||'').toLowerCase();
+  const status=($('userStatusFilter')?.value||'').toLowerCase();
+  let a=U.filter(u=>{
+    if(role && String(u.role||'user').toLowerCase()!==role)return false;
+    if(status && String(u.status||'active').toLowerCase()!==status)return false;
+    if(!q)return true;
+    return [
+      u.firstName,u.lastName,u.username,u.email,u.phone,u.country,u.role,u.status
+    ].map(v=>String(v||'').toLowerCase()).some(v=>v.includes(q));
+  });
+  $('utbl').innerHTML=a.length?a.map(u=>`
+    <tr>
+      <td><b>${esc((u.firstName||'')+' '+(u.lastName||''))}</b></td>
+      <td>${esc(u.username||'—')}</td>
+      <td>${esc(u.email||'—')}</td>
+      <td>${esc(u.phone||'—')}</td>
+      <td>${esc(u.country||'—')}</td>
+      <td><span class="pill ${u.role==='admin'?'py':'pg'}">${esc(u.role||'user')}</span></td>
+      <td><span class="pill ${u.status==='disabled'?'pr':'pg'}">${esc(u.status||'active')}</span></td>
+      <td>${bool(u.online)?'<span class="pill pg">Online</span>':'<span class="pill py">Offline</span>'}</td>
+      <td>${formatDate(u.createdAt)}</td>
+      <td>
+        <button class=btn data-action="edit-user" data-id="${esc(u.id)}">Edit</button>
+        <button class="btn danger" data-action="delete-user" data-id="${esc(u.id)}">Delete</button>
+      </td>
+    </tr>`).join(''):'<tr><td colspan=10 class=empty>No users found.</td></tr>';
+}
+
+async function safeWrite(action,label){
+  try{await action();toast(label)}catch(err){console.error(err);toast('Error: '+(err?.message||'Operation failed'))}
+}
+
+window.saveEvent=async()=>{
+  let id=$('eid').value,d={
+    name:$('ename').value.trim(),
+    status:$('estatus').value,
+    startDate:$('estart').value,
+    endDate:$('eend').value,
+    description:$('edesc').value.trim(),
+    updatedAt:Date.now()
   };
+  if(!d.name||!d.startDate||!d.endDate)return toast('Complete event fields.');
+  if(d.endDate<d.startDate)return toast('End date cannot be before start date.');
+  await safeWrite(async()=>{
+    if(id)await update(ref(db,'events/'+id),d);
+    else await set(push(ref(db,'events')),{...d,createdAt:Date.now()});
+    clearEvent();
+  },'Event saved.');
+};
 
+window.editEvent=id=>{
+  let e=E.find(x=>x.id===id);if(!e)return;
+  $('eid').value=id;$('ename').value=e.name||'';$('estatus').value=e.status||'Active';
+  $('estart').value=e.startDate||'';$('eend').value=e.endDate||'';$('edesc').value=e.description||'';
+  showTab('events');
+  toast('Event loaded for editing.','info');
+};
 
-  try{
+window.deleteEvent=async id=>{
+  if(!confirm('Delete this event?')){toast('Event deletion cancelled.','warning');return;}
+  await safeWrite(()=>remove(ref(db,'events/'+id)),'Event deleted.');
+};
 
+window.clearEvent=()=>{$('ef').reset();$('eid').value=''};
+
+window.savePred=async()=>{
+  let id=$('pid').value,e=$('pe').value,d={
+    eventId:e,eventName:en(e),matchDate:$('pdate').value,
+    country:$('country').value.trim(),league:$('league').value.trim(),
+    homeTeam:$('home').value.trim(),awayTeam:$('away').value.trim(),
+    prediction:$('pick').value.trim(),visibility:$('access').value,updatedAt:Date.now()
+  };
+  if(!d.matchDate||!d.homeTeam||!d.awayTeam||!d.prediction)return toast('Complete prediction fields.');
+  await safeWrite(async()=>{
+    if(id)await update(ref(db,'predictions/'+id),d);
+    else await set(push(ref(db,'predictions')),{...d,result:'Pending',score:'',resultPublished:false,createdAt:Date.now()});
+    clearPred();
+  },id?'Prediction updated.':'Prediction published.');
+};
+
+window.editPred=id=>{
+  let p=P.find(x=>x.id===id);if(!p)return;
+  $('pid').value=id;$('pe').value=p.eventId||'';$('pdate').value=p.matchDate||'';
+  $('country').value=p.country||'';$('league').value=p.league||'';
+  $('home').value=p.homeTeam||'';$('away').value=p.awayTeam||'';
+  $('pick').value=p.prediction||'';$('access').value=p.visibility||'free';
+  showTab('preds');
+  window.scrollTo({top:0,behavior:'smooth'});
+  toast('Prediction loaded for editing.','info');
+};
+
+window.deletePred=async id=>{
+  let p=P.find(x=>x.id===id);
+  if(!p)return;
+  if(!confirm(`Delete prediction: ${p.homeTeam||''} vs ${p.awayTeam||''}?`)){toast('Prediction deletion cancelled.','warning');return;}
+  await safeWrite(()=>remove(ref(db,'predictions/'+id)),'Prediction deleted.');
+};
+
+window.clearPred=()=>{$('pf').reset();$('pid').value=''};
+
+window.resultEdit=async id=>{
+  let p=P.find(x=>x.id===id);if(!p)return;
+  let r=prompt('Result: Pending, Won, Lost or Void',p.result||'Pending');if(r===null){toast('Result update cancelled.','warning');return;}
+  r=r.trim();
+  if(!['Pending','Won','Lost','Void'].includes(r))return toast('Invalid result. Choose Pending, Won, Lost or Void.','error');
+  let s=prompt('Final score',p.score||'');if(s===null){toast('Result update cancelled.','warning');return;}
+  let pub=confirm('Publish this result on the public Results Calendar?');
+  toast(pub?'Result will be published publicly.':'Result will remain hidden from the public calendar.','info');
+  await safeWrite(()=>update(ref(db,'predictions/'+id),{
+    result:r,score:s,resultPublished:pub,updatedAt:Date.now()
+  }),'Result updated.');
+};
+
+window.saveCode=async()=>{
+  let id=$('cid').value,d={
+    platform:$('platform').value,visibility:$('caccess').value,code:$('cvalue').value.trim(),
+    active:$('cactive').value==='true',note:$('cnote').value.trim(),updatedAt:Date.now()
+  };
+  if(!d.code)return toast('Enter booking code.');
+  await safeWrite(async()=>{
+    if(id)await update(ref(db,'bookingCodes/'+id),d);
+    else await set(push(ref(db,'bookingCodes')),{...d,createdAt:Date.now()});
+    clearCode();
+  },id?'Code updated.':'Code saved.');
+};
+
+window.editCode=id=>{
+  let c=C.find(x=>x.id===id);if(!c)return;
+  $('cid').value=id;$('platform').value=c.platform||'SportyBet';
+  $('caccess').value=c.visibility||'free';$('cvalue').value=c.code||'';
+  $('cactive').value=String(c.active!==false);$('cnote').value=c.note||'';
+  toast('Booking code loaded for editing.','info');
+};
+
+window.deleteCode=async id=>{
+  if(!confirm('Delete booking code?')){toast('Booking code deletion cancelled.','warning');return;}
+  await safeWrite(()=>remove(ref(db,'bookingCodes/'+id)),'Code deleted.');
+};
+
+window.clearCode=()=>{$('cf').reset();$('cid').value=''};
+
+window.saveUser=async()=>{
+  const id=$('uid').value.trim();
+  const d={
+    firstName:$('ufirst').value.trim(),
+    lastName:$('ulast').value.trim(),
+    username:$('uusername').value.trim(),
+    email:$('uemail').value.trim(),
+    phone:$('uphone').value.trim(),
+    country:$('ucountry').value.trim(),
+    role:$('urole').value,
+    status:$('ustatus').value,
+    updatedAt:Date.now()
+  };
+  const password=$('upassword').value;
+  if(!d.firstName||!d.lastName||!d.email)return toast('First name, last name and email are required.');
+
+  if(!id && password.length<6)return toast('New email/password users need a password of at least 6 characters.');
+  const duplicate=U.find(u=>u.id!==id&&String(u.username||'').toLowerCase()===d.username.toLowerCase()&&d.username);
+  if(duplicate)return toast('Username already exists.');
+
+  await safeWrite(async()=>{
     if(id){
-
-      await update(
-        ref(
-          db,
-          "predictions/" + id
-        ),
-        data
-      );
-
-      showToast(
-        "Prediction updated successfully."
-      );
-
-    }else{
-
-      data.createdAt =
-        Date.now();
-
-
-      const newRef =
-        push(
-          ref(db,"predictions")
-        );
-
-
-      await set(
-        newRef,
-        data
-      );
-
-
-      showToast(
-        "Prediction published successfully."
-      );
-
+      await update(ref(db,'users/'+id),d);
+      clearUser();
+      return;
     }
-
-
-    clearPredictionForm();
-
-    await loadPredictions();
-
-    updateStats();
-
-
-  }catch(error){
-
-    console.error(error);
-
-    showToast(
-      "Could not save prediction."
-    );
-
-  }
-
-};
-
-
-/* ==================================================
-   EDIT PREDICTION
-================================================== */
-
-window.editPrediction =
-function(id){
-
-  const p =
-    predictions.find(
-      item => item.id === id
-    );
-
-
-  if(!p) return;
-
-
-  document.getElementById(
-    "predictionId"
-  ).value = p.id;
-
-
-  document.getElementById(
-    "week"
-  ).value =
-    p.week || "";
-
-
-  document.getElementById(
-    "country"
-  ).value =
-    p.country || "";
-
-
-  document.getElementById(
-    "league"
-  ).value =
-    p.league || "";
-
-
-  document.getElementById(
-    "matchDate"
-  ).value =
-    p.matchDate || "";
-
-
-  document.getElementById(
-    "homeTeam"
-  ).value =
-    p.homeTeam || "";
-
-
-  document.getElementById(
-    "awayTeam"
-  ).value =
-    p.awayTeam || "";
-
-
-  document.getElementById(
-    "prediction"
-  ).value =
-    p.prediction || "";
-
-
-  document.getElementById(
-    "visibility"
-  ).value =
-    p.visibility || "free";
-
-
-  document.getElementById(
-    "result"
-  ).value =
-    p.result || "Pending";
-
-
-  document.getElementById(
-    "score"
-  ).value =
-    p.score || "";
-
-
-  document.getElementById(
-    "adminNote"
-  ).value =
-    p.adminNote || "";
-
-
-  document.getElementById(
-    "predictionFormTitle"
-  ).textContent =
-    "Edit Prediction";
-
-
-  document.getElementById(
-    "savePredictionBtn"
-  ).textContent =
-    "Update Prediction";
-
-
-  window.scrollTo({
-    top:0,
-    behavior:"smooth"
-  });
-
-};
-
-
-/* ==================================================
-   CLEAR FORM
-================================================== */
-
-window.clearPredictionForm =
-function(){
-
-  document
-    .getElementById(
-      "predictionForm"
-    )
-    .reset();
-
-
-  document.getElementById(
-    "predictionId"
-  ).value = "";
-
-
-  document.getElementById(
-    "result"
-  ).value = "Pending";
-
-
-  document.getElementById(
-    "visibility"
-  ).value = "free";
-
-
-  document.getElementById(
-    "predictionFormTitle"
-  ).textContent =
-    "Post New Prediction";
-
-
-  document.getElementById(
-    "savePredictionBtn"
-  ).textContent =
-    "Publish Prediction";
-
-};
-
-
-/* ==================================================
-   DELETE PREDICTION
-================================================== */
-
-window.deletePrediction =
-async function(id){
-
-  const p =
-    predictions.find(
-      item => item.id === id
-    );
-
-
-  if(!p) return;
-
-
-  const confirmed =
-    confirm(
-      `Delete ${p.homeTeam || "this match"} vs ${p.awayTeam || ""}?\n\nThis cannot be undone.`
-    );
-
-
-  if(!confirmed) return;
-
-
-  try{
-
-    await remove(
-      ref(
-        db,
-        "predictions/" + id
-      )
-    );
-
-
-    showToast(
-      "Prediction deleted."
-    );
-
-
-    await loadPredictions();
-
-    updateStats();
-
-
-  }catch(error){
-
-    console.error(error);
-
-    showToast(
-      "Could not delete prediction."
-    );
-
-  }
-
-};
-
-
-/* ==================================================
-   QUICK RESULT
-================================================== */
-
-window.openResultModal =
-function(id){
-
-  const p =
-    predictions.find(
-      item => item.id === id
-    );
-
-
-  if(!p) return;
-
-
-  document.getElementById(
-    "resultPredictionId"
-  ).value = id;
-
-
-  document.getElementById(
-    "quickResult"
-  ).value =
-    p.result || "Pending";
-
-
-  document.getElementById(
-    "quickScore"
-  ).value =
-    p.score || "";
-
-
-  document
-    .getElementById(
-      "resultModal"
-    )
-    .classList.add("show");
-
-};
-
-
-window.saveQuickResult =
-async function(){
-
-  const id =
-    document.getElementById(
-      "resultPredictionId"
-    ).value;
-
-
-  const result =
-    document.getElementById(
-      "quickResult"
-    ).value;
-
-
-  const score =
-    document.getElementById(
-      "quickScore"
-    ).value.trim();
-
-
-  try{
-
-    await update(
-      ref(
-        db,
-        "predictions/" + id
-      ),
-      {
-        result,
-        score,
-        updatedAt:Date.now()
-      }
-    );
-
-
-    closeModal(
-      "resultModal"
-    );
-
-
-    showToast(
-      "Match result updated."
-    );
-
-
-    await loadPredictions();
-
-    updateStats();
-
-
-  }catch(error){
-
-    console.error(error);
-
-    showToast(
-      "Could not update result."
-    );
-
-  }
-
-};
-
-
-/* ==================================================
-   USERS
-================================================== */
-
-async function loadUsers(){
-
-  const grid =
-    document.getElementById(
-      "userGrid"
-    );
-
-
-  grid.innerHTML = `
-    <div class="loading">
-      Loading users...
-    </div>
-  `;
-
-
-  try{
-
-    const snapshot =
-      await get(
-        ref(db,"users")
-      );
-
-
-    if(!snapshot.exists()){
-
-      users = [];
-
-    }else{
-
-      const data =
-        snapshot.val();
-
-
-      users =
-        Object.entries(data)
-        .map(([id,item])=>({
-
-          id,
-
-          ...(item || {})
-
-        }));
-
-    }
-
-
-    users.sort(
-      (a,b)=>
-        (b.createdAt || 0) -
-        (a.createdAt || 0)
-    );
-
-
-    renderUsers();
-
-    updateStats();
-
-
-  }catch(error){
-
-    console.error(error);
-
-    grid.innerHTML = `
-      <div class="empty">
-        Could not load users.
-      </div>
-    `;
-
-  }
-
-}
-
-
-/* ==================================================
-   CHECK ACTIVE VIP
-================================================== */
-
-function isVIPActive(user){
-
-  if(user.vip !== true){
-    return false;
-  }
-
-
-  if(!user.vipExpiry){
-    return true;
-  }
-
-
-  const expiry =
-    Number(user.vipExpiry);
-
-
-  if(!Number.isFinite(expiry)){
-    return true;
-  }
-
-
-  return expiry >= Date.now();
-
-}
-
-
-/* ==================================================
-   RENDER USERS
-================================================== */
-
-window.renderUsers =
-function(){
-
-  const grid =
-    document.getElementById(
-      "userGrid"
-    );
-
-
-  const search =
-    document.getElementById(
-      "searchUsers"
-    )
-    .value
-    .toLowerCase()
-    .trim();
-
-
-  const status =
-    document.getElementById(
-      "userStatusFilter"
-    ).value;
-
-
-  const filtered =
-    users.filter(user=>{
-
-      const text = (
-
-        (user.name || "") +
-        " " +
-        (user.email || "")
-
-      ).toLowerCase();
-
-
-      if(
-        search &&
-        !text.includes(search)
-      ){
-
-        return false;
-
-      }
-
-
-      const activeVIP =
-        isVIPActive(user);
-
-
-      const expired =
-        user.vip === true &&
-        !activeVIP;
-
-
-      if(
-        status === "vip" &&
-        !activeVIP
-      ){
-
-        return false;
-
-      }
-
-
-      if(
-        status === "free" &&
-        user.vip === true
-      ){
-
-        return false;
-
-      }
-
-
-      if(
-        status === "expired" &&
-        !expired
-      ){
-
-        return false;
-
-      }
-
-
-      return true;
-
+    const response=await fetch('https://identitytoolkit.googleapis.com/v1/accounts:signUp?key='+encodeURIComponent('AIzaSyDZwA8UdtREPfoKDO3xQqTYOwb3SRx2sys'),{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({email:d.email,password,returnSecureToken:false})
     });
-
-
-  if(!filtered.length){
-
-    grid.innerHTML = `
-      <div class="empty">
-        No users found.
-      </div>
-    `;
-
-    return;
-
-  }
-
-
-  grid.innerHTML =
-    filtered.map(user=>{
-
-      const activeVIP =
-        isVIPActive(user);
-
-
-      const expired =
-        user.vip === true &&
-        !activeVIP;
-
-
-      let statusBadge = "";
-
-      if(activeVIP){
-
-        statusBadge = `
-          <span class="badge badge-vip">
-            ★ VIP ACTIVE
-          </span>
-        `;
-
-      }else if(expired){
-
-        statusBadge = `
-          <span class="badge badge-expired">
-            EXPIRED
-          </span>
-        `;
-
-      }else{
-
-        statusBadge = `
-          <span class="badge badge-free">
-            FREE
-          </span>
-        `;
-
-      }
-
-
-      const paymentStatus =
-        user.paymentStatus || "not_paid";
-
-
-      const paymentLabel =
-        paymentStatus === "confirmed"
-          ? "CONFIRMED"
-          : paymentStatus === "pending"
-            ? "PENDING"
-            : "NOT PAID";
-
-
-      return `
-
-        <div class="user-card ${activeVIP ? "vip-active" : ""}">
-
-          <div class="user-top">
-
-            <div>
-
-              <div class="user-name">
-
-                ${escapeHTML(
-                  user.name || "User"
-                )}
-
-              </div>
-
-              <div class="user-email">
-
-                ${escapeHTML(
-                  user.email || "-"
-                )}
-
-              </div>
-
-            </div>
-
-
-            ${statusBadge}
-
-          </div>
-
-
-          <div class="user-meta">
-
-            <div>
-
-              Joined
-
-              <strong>
-                ${formatDate(
-                  user.createdAt
-                )}
-              </strong>
-
-            </div>
-
-
-            <div>
-
-              VIP Expiry
-
-              <strong>
-
-                ${
-                  user.vipExpiry
-                    ? formatDate(
-                        user.vipExpiry
-                      )
-                    : "No expiry"
-                }
-
-              </strong>
-
-            </div>
-
-
-            <div>
-
-              Payment
-
-              <strong>
-                ${paymentLabel}
-              </strong>
-
-            </div>
-
-
-            <div>
-
-              VIP Since
-
-              <strong>
-
-                ${
-                  user.vipActivatedAt
-                    ? formatDate(
-                        user.vipActivatedAt
-                      )
-                    : "-"
-                }
-
-              </strong>
-
-            </div>
-
-          </div>
-
-
-          ${
-            user.paymentReference
-              ? `
-                <div class="payment-box">
-
-                  <small>
-                    Payment Reference
-                  </small>
-
-                  <strong>
-                    ${escapeHTML(
-                      user.paymentReference
-                    )}
-                  </strong>
-
-                </div>
-              `
-              : ""
-          }
-
-
-          <div class="user-actions">
-
-            <button
-              class="btn ${
-                activeVIP
-                  ? "gold"
-                  : "green"
-              }"
-              onclick="manageUser('${user.id}')">
-
-              ${
-                activeVIP
-                  ? "Manage VIP"
-                  : "Activate VIP"
-              }
-
-            </button>
-
-
-            ${
-              activeVIP
-                ? `
-                  <button
-                    class="btn red"
-                    onclick="deactivateVIP('${user.id}')">
-
-                    Deactivate
-
-                  </button>
-                `
-                : ""
-            }
-
-          </div>
-
-        </div>
-
-      `;
-
-    }).join("");
-
+    const result=await response.json();
+    if(!response.ok)throw new Error(result?.error?.message||'Could not create Firebase Authentication account.');
+    await set(ref(db,'users/'+result.localId),{...d,authProvider:'password',createdAt:Date.now()});
+    clearUser();
+  },id?'User profile updated.':'User login account created.');
 };
 
-
-/* ==================================================
-   MANAGE USER
-================================================== */
-
-window.manageUser =
-function(id){
-
-  const user =
-    users.find(
-      u => u.id === id
-    );
-
-
-  if(!user) return;
-
-
-  document.getElementById(
-    "selectedUserId"
-  ).value = id;
-
-
-  document.getElementById(
-    "modalUserName"
-  ).textContent =
-    user.name || "User";
-
-
-  document.getElementById(
-    "modalUserEmail"
-  ).textContent =
-    user.email || "-";
-
-
-  document.getElementById(
-    "userVIP"
-  ).value =
-    user.vip === true
-      ? "true"
-      : "false";
-
-
-  if(user.vipExpiry){
-
-    const date =
-      new Date(
-        Number(user.vipExpiry)
-      );
-
-
-    if(!Number.isNaN(date.getTime())){
-
-      const year =
-        date.getFullYear();
-
-      const month =
-        String(
-          date.getMonth() + 1
-        ).padStart(2,"0");
-
-      const day =
-        String(
-          date.getDate()
-        ).padStart(2,"0");
-
-
-      document.getElementById(
-        "vipExpiry"
-      ).value =
-        `${year}-${month}-${day}`;
-
-    }else{
-
-      document.getElementById(
-        "vipExpiry"
-      ).value = "";
-
-    }
-
-  }else{
-
-    document.getElementById(
-      "vipExpiry"
-    ).value = "";
-
-  }
-
-
-  document.getElementById(
-    "paymentStatus"
-  ).value =
-    user.paymentStatus ||
-    "confirmed";
-
-
-  document.getElementById(
-    "paymentReference"
-  ).value =
-    user.paymentReference || "";
-
-
-  document.getElementById(
-    "vipAdminNote"
-  ).value =
-    user.vipAdminNote || "";
-
-
-  toggleVIPFields();
-
-
-  document
-    .getElementById(
-      "userModal"
-    )
-    .classList.add("show");
-
+window.editUser=id=>{
+  const u=U.find(x=>x.id===id);if(!u)return;
+  $('uid').value=id;
+  $('ufirst').value=u.firstName||'';
+  $('ulast').value=u.lastName||'';
+  $('uusername').value=u.username||'';
+  $('uemail').value=u.email||'';
+  $('uphone').value=u.phone||'';
+  $('ucountry').value=u.country||'';
+  $('urole').value=u.role||'user';
+  $('ustatus').value=u.status||'active';
+  $('upassword').value='';
+  showTab('users');
+  window.scrollTo({top:0,behavior:'smooth'});
+  toast('User loaded for editing.','info');
 };
 
-
-/* ==================================================
-   TOGGLE VIP FIELDS
-================================================== */
-
-window.toggleVIPFields =
-function(){
-
-  const vip =
-    document.getElementById(
-      "userVIP"
-    ).value === "true";
-
-
-  document.getElementById(
-    "vipFields"
-  ).style.display =
-    vip ? "block" : "none";
-
+window.deleteUser=async id=>{
+  const u=U.find(x=>x.id===id);if(!u)return;
+  const name=((u.firstName||'')+' '+(u.lastName||'')).trim()||u.email||id;
+  if(!confirm(`Delete the Realtime Database profile for "${name}"?\\n\\nThis removes the profile from /users. It does NOT delete the Firebase Authentication account.`)){toast('User deletion cancelled.','warning');return;}
+  await safeWrite(()=>remove(ref(db,'users/'+id)),'User profile deleted.');
+  if($('uid').value===id)clearUser();
 };
 
-
-/* ==================================================
-   SAVE USER / ACTIVATE VIP
-================================================== */
-
-window.saveUser =
-async function(){
-
-  const id =
-    document.getElementById(
-      "selectedUserId"
-    ).value;
-
-
-  if(!id){
-
-    showToast(
-      "No user selected."
-    );
-
-    return;
-
-  }
-
-
-  const user =
-    users.find(
-      u => u.id === id
-    );
-
-
-  if(!user){
-
-    showToast(
-      "User not found."
-    );
-
-    return;
-
-  }
-
-
-  const vip =
-    document.getElementById(
-      "userVIP"
-    ).value === "true";
-
-
-  const expiry =
-    document.getElementById(
-      "vipExpiry"
-    ).value;
-
-
-  const paymentStatus =
-    document.getElementById(
-      "paymentStatus"
-    ).value;
-
-
-  const paymentReference =
-    document.getElementById(
-      "paymentReference"
-    ).value.trim();
-
-
-  const vipAdminNote =
-    document.getElementById(
-      "vipAdminNote"
-    ).value.trim();
-
-
-  /* --------------------------------
-     SECURITY CHECK IN UI:
-     VIP requires confirmed payment.
-  -------------------------------- */
-
-  if(
-    vip &&
-    paymentStatus !== "confirmed"
-  ){
-
-    showToast(
-      "Confirm payment before activating VIP."
-    );
-
-    return;
-
-  }
-
-
-  let vipExpiry = null;
-
-
-  if(vip && expiry){
-
-    const expiryDate =
-      new Date(
-        expiry + "T23:59:59"
-      );
-
-
-    vipExpiry =
-      expiryDate.getTime();
-
-  }
-
-
-  try{
-
-    const updateData = {
-
-      vip,
-
-      vipExpiry,
-
-      paymentStatus,
-
-      paymentReference,
-
-      vipAdminNote,
-
-      updatedAt:
-        Date.now()
-
-    };
-
-
-    if(vip){
-
-      updateData.vipActivatedAt =
-        Date.now();
-
-    }else{
-
-      updateData.vipActivatedAt =
-        null;
-
-    }
-
-
-    await update(
-      ref(
-        db,
-        "users/" + id
-      ),
-      updateData
-    );
-
-
-    closeModal(
-      "userModal"
-    );
-
-
-    showToast(
-      vip
-        ? "VIP access activated successfully."
-        : "VIP access removed."
-    );
-
-
-    await loadUsers();
-
-    updateStats();
-
-
-  }catch(error){
-
-    console.error(error);
-
-    showToast(
-      "Could not update user."
-    );
-
-  }
-
+window.clearUser=()=>{
+  $('uf').reset();
+  $('uid').value='';
+  $('upassword').value='';
+  $('urole').value='user';
+  $('ustatus').value='active';
 };
 
-
-/* ==================================================
-   DEACTIVATE VIP
-================================================== */
-
-window.deactivateVIP =
-async function(id){
-
-  const user =
-    users.find(
-      u => u.id === id
-    );
-
-
-  if(!user) return;
-
-
-  const confirmed =
-    confirm(
-      `Remove VIP access from ${user.name || user.email || "this user"}?`
-    );
-
-
-  if(!confirmed) return;
-
-
-  try{
-
-    await update(
-      ref(
-        db,
-        "users/" + id
-      ),
-      {
-
-        vip:false,
-
-        vipExpiry:null,
-
-        updatedAt:
-          Date.now()
-
-      }
-    );
-
-
-    showToast(
-      "VIP access removed."
-    );
-
-
-    await loadUsers();
-
-    updateStats();
-
-
-  }catch(error){
-
-    console.error(error);
-
-    showToast(
-      "Could not deactivate VIP."
-    );
-
-  }
-
-};
-
-
-/* ==================================================
-   TESTIMONIALS
-================================================== */
-
-async function loadTestimonials(){
-
-  const snapshot =
-    await get(
-      ref(db,"testimonials")
-    );
-
-
-  if(!snapshot.exists()){
-
-    testimonials = [];
-
-  }else{
-
-    const data =
-      snapshot.val();
-
-
-    testimonials =
-      Object.entries(data)
-      .map(([id,item])=>({
-
-        id,
-
-        ...(item || {})
-
-      }));
-
-  }
-
-
-  renderTestimonials();
-
-}
-
-
-window.renderTestimonials =
-function(){
-
-  const container =
-    document.getElementById(
-      "testimonialAdminList"
-    );
-
-
-  if(!testimonials.length){
-
-    container.innerHTML = `
-      <div class="empty">
-        No testimonials yet.
-      </div>
-    `;
-
-    return;
-
-  }
-
-
-  container.innerHTML =
-    testimonials.map(t=>{
-
-      const rating =
-        Math.min(
-          5,
-          Math.max(
-            1,
-            Number(t.rating || 5)
-          )
-        );
-
-
-      return `
-
-        <div
-          class="user-card"
-          style="margin-bottom:12px">
-
-          <div class="user-top">
-
-            <div>
-
-              <div class="user-name">
-
-                ${escapeHTML(
-                  t.name || "Anonymous"
-                )}
-
-              </div>
-
-              <div class="user-email">
-
-                ${"★".repeat(rating)}
-
-              </div>
-
-            </div>
-
-
-            <span class="badge ${
-              t.approved
-                ? "badge-free"
-                : "badge-pending"
-            }">
-
-              ${
-                t.approved
-                  ? "APPROVED"
-                  : "PENDING"
-              }
-
-            </span>
-
-          </div>
-
-
-          <p
-            style="
-              color:#c4cec7;
-              font-size:13px;
-              margin:15px 0;
-            ">
-
-            ${escapeHTML(
-              t.message || ""
-            )}
-
-          </p>
-
-
-          <div class="actions">
-
-            <button
-              class="action-btn edit"
-              onclick="toggleTestimonial('${t.id}',${!t.approved})">
-
-              ${
-                t.approved
-                  ? "Unapprove"
-                  : "Approve"
-              }
-
-            </button>
-
-
-            <button
-              class="action-btn delete"
-              onclick="deleteTestimonial('${t.id}')">
-
-              Delete
-
-            </button>
-
-          </div>
-
-        </div>
-
-      `;
-
-    }).join("");
-
-};
-
-
-window.toggleTestimonial =
-async function(id,approved){
-
-  try{
-
-    await update(
-      ref(
-        db,
-        "testimonials/" + id
-      ),
-      {
-        approved,
-        updatedAt:Date.now()
-      }
-    );
-
-
-    showToast(
-      approved
-        ? "Testimonial approved."
-        : "Testimonial unapproved."
-    );
-
-
-    await loadTestimonials();
-
-
-  }catch(error){
-
-    console.error(error);
-
-    showToast(
-      "Could not update testimonial."
-    );
-
-  }
-
-};
-
-
-window.deleteTestimonial =
-async function(id){
-
-  if(
-    !confirm(
-      "Delete this testimonial?"
-    )
-  ){
-
-    return;
-
-  }
-
-
-  try{
-
-    await remove(
-      ref(
-        db,
-        "testimonials/" + id
-      )
-    );
-
-
-    showToast(
-      "Testimonial deleted."
-    );
-
-
-    await loadTestimonials();
-
-
-  }catch(error){
-
-    console.error(error);
-
-    showToast(
-      "Could not delete testimonial."
-    );
-
-  }
-
-};
-
-
-/* ==================================================
-   DASHBOARD TABS
-================================================== */
-
-window.showTab =
-function(tabId,button){
-
-  document.getElementById(
-    "predictionsTab"
-  ).style.display = "none";
-
-
-  document.getElementById(
-    "usersTab"
-  ).style.display = "none";
-
-
-  document.getElementById(
-    "testimonialsTab"
-  ).style.display = "none";
-
-
-  document.getElementById(
-    tabId
-  ).style.display = "block";
-
-
-  document
-    .querySelectorAll(
-      ".dashboard-tabs button"
-    )
-    .forEach(btn=>
-      btn.classList.remove(
-        "active"
-      )
-    );
-
-
-  button.classList.add(
-    "active"
-  );
-
-};
-
-
-/* ==================================================
-   STATS
-================================================== */
-
-function updateStats(){
-
-  document.getElementById(
-    "totalUsers"
-  ).textContent =
-    users.length;
-
-
-  document.getElementById(
-    "totalVIP"
-  ).textContent =
-    users.filter(
-      u => isVIPActive(u)
-    ).length;
-
-
-  document.getElementById(
-    "totalPredictions"
-  ).textContent =
-    predictions.length;
-
-
-  document.getElementById(
-    "totalWon"
-  ).textContent =
-    predictions.filter(
-      p => p.result === "Won"
-    ).length;
-
-
-  document.getElementById(
-    "totalLost"
-  ).textContent =
-    predictions.filter(
-      p => p.result === "Lost"
-    ).length;
-
-}
-
-
-/* ==================================================
-   MODALS
-================================================== */
-
-window.closeModal =
-function(id){
-
-  document
-    .getElementById(id)
-    .classList.remove("show");
-
-};
-
-
-document
-  .querySelectorAll(".modal")
-  .forEach(modal=>{
-
-    modal.addEventListener(
-      "click",
-      event=>{
-
-        if(
-          event.target === modal
-        ){
-
-          modal.classList.remove(
-            "show"
-          );
-
-        }
-
-      }
-    );
-
-  });
-
-
-/* ==================================================
-   TOAST
-================================================== */
-
-function showToast(message){
-
-  const toast =
-    document.getElementById(
-      "toast"
-    );
-
-
-  toast.textContent =
-    message;
-
-
-  toast.classList.add(
-    "show"
-  );
-
-
-  setTimeout(
-    ()=>
-      toast.classList.remove(
-        "show"
-      ),
-    3000
-  );
-
-}
-
-
-/* ==================================================
-   HELPERS
-================================================== */
-
-function escapeHTML(value){
-
-  return String(value ?? "")
-    .replaceAll(
-      "&",
-      "&amp;"
-    )
-    .replaceAll(
-      "<",
-      "&lt;"
-    )
-    .replaceAll(
-      ">",
-      "&gt;"
-    )
-    .replaceAll(
-      '"',
-      "&quot;"
-    )
-    .replaceAll(
-      "'",
-      "&#039;"
-    );
-
-}
-
-
-function formatDate(value){
-
-  if(
-    value === null ||
-    value === undefined ||
-    value === ""
-  ){
-
-    return "-";
-
-  }
-
-
-  let date;
-
-
-  if(
-    typeof value === "number" ||
-    !Number.isNaN(
-      Number(value)
-    )
-  ){
-
-    date =
-      new Date(
-        Number(value)
-      );
-
-  }else{
-
-    date =
-      new Date(value);
-
-  }
-
-
-  if(
-    Number.isNaN(
-      date.getTime()
-    )
-  ){
-
-    return String(value);
-
-  }
-
-
-  return date.toLocaleString(
-    "en-NG",
-    {
-      dateStyle:"medium",
-      timeStyle:"short"
-    }
-  );
-
-}
-
-
-/* ==================================================
-   START
-================================================== */
-
-loadDashboard();
-
+document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+  $(b.dataset.tab).classList.add('active');
+  $('title').textContent=b.textContent.replace(/^\\S+\\s/,'');
+});
+
+document.addEventListener('click',e=>{
+  const b=e.target.closest('[data-action]');
+  if(!b)return;
+  const id=b.dataset.id, a=b.dataset.action;
+  if(a==='edit-event')editEvent(id);
+  else if(a==='delete-event')deleteEvent(id);
+  else if(a==='edit-pred')editPred(id);
+  else if(a==='delete-pred')deletePred(id);
+  else if(a==='settle')resultEdit(id);
+  else if(a==='edit-code')editCode(id);
+  else if(a==='delete-code')deleteCode(id);
+  else if(a==='edit-user')editUser(id);
+  else if(a==='delete-user')deleteUser(id);
+});
+
+$('pb').value=bd;
+$('pb').onchange=()=>{bd=$('pb').value;renderPreds()};
+$('userSearch').addEventListener('input',renderUsers);
+$('userRoleFilter').addEventListener('change',renderUsers);
+$('userStatusFilter').addEventListener('change',renderUsers);
+$('saveUserBtn').addEventListener('click',saveUser);
+$('newUserBtn').addEventListener('click',clearUser);
+
+$('ep').onclick=()=>{ec.setMonth(ec.getMonth()-1);renderEvents()};
+$('en').onclick=()=>{ec.setMonth(ec.getMonth()+1);renderEvents()};
+$('et').onclick=()=>{ec=new Date();renderEvents()};
+$('rp').onclick=()=>{rc.setMonth(rc.getMonth()-1);renderResults()};
+$('rn').onclick=()=>{rc.setMonth(rc.getMonth()+1);renderResults()};
+$('rt').onclick=()=>{rc=new Date();rd=key(new Date());renderResults()};
+
+onValue(ref(db,'events'),s=>{
+  E=s.exists()?Object.entries(s.val()).map(([id,x])=>({id,...(x||{})})):[];
+  $('se').textContent=E.length;fillEvents();renderEvents();renderPreds();
+},err=>{console.error(err);toast('Events read failed: '+err.message)});
+
+onValue(ref(db,'predictions'),s=>{
+  P=s.exists()?Object.entries(s.val()).map(([id,x])=>({id,...(x||{})})):[];
+  $('sp').textContent=P.length;$('sr').textContent=P.filter(p=>bool(p.resultPublished)).length;
+  renderPreds();renderResults();
+},err=>{console.error(err);toast('Predictions read failed: '+err.message)});
+
+onValue(ref(db,'bookingCodes'),s=>{
+  C=s.exists()?Object.entries(s.val()).map(([id,x])=>({id,...(x||{})})):[];
+  $('sc').textContent=C.length;renderCodes();
+},err=>{console.error(err);toast('Booking codes read failed: '+err.message)});
+
+onValue(ref(db,'users'),s=>{
+  U=s.exists()?Object.entries(s.val()).map(([id,x])=>({id,...(x||{})})):[];
+  $('su').textContent=U.length;renderUsers();
+},err=>{console.error(err);toast('Users read failed: '+err.message)});
+
+renderEvents();renderPreds();renderResults();renderCodes();renderUsers();
 </script>
-
 </body>
 </html>
