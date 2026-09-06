@@ -103,6 +103,14 @@ const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&
 const time=p=>{if(p.time&&!p.matchDate)return String(p.time);if(!p.matchDate)return"—";const d=new Date(p.matchDate);return isNaN(d)?String(p.matchDate).slice(11,16)||"—":d.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})};
 let P=[],E=[],C=[],predMonth=new Date(),resMonth=new Date(),selectedPred=key(new Date()),selectedResult=key(new Date()),eventFilter="all";
 let predictionSearch="",predictionAccess="";
+let currentUser=null,currentProfile=null;
+function isVipMember(){
+ const p=currentProfile||{};
+ const status=String(p.status||"active").toLowerCase();
+ if(status==="disabled"||status==="inactive")return false;
+ const access=String(p.membership||p.membershipType||p.plan||p.subscriptionPlan||p.accessLevel||p.vipStatus||p.vipAccess||p.subscription||"").toLowerCase();
+ return access==="vip"||access==="active_vip"||access==="vip_active"||p.vip===true||String(p.vip).toLowerCase()==="true";
+}
 
 function eventName(id){return E.find(e=>e.id===id)?.name||id||"Football"}
 function renderCalendar(kind){
@@ -138,9 +146,9 @@ function renderP(){
  <article class="match ${vip?"vip":""}"><div class="topline"><span class="meta">${esc(p.country||"")} ${p.country&&p.league?"· ":""}${esc(p.league||"")}</span>
  <span class="tag ${vip?"vipt":"free"}">${vip?"★ VIP":publicBoth?"FREE + VIP":"FREE"}</span></div>
  <div class="teams"><div class="team">${esc(p.homeTeam)}</div><div class="vs">${esc(time(p))}<br>VS</div><div class="team away">${esc(p.awayTeam)}</div></div>
- <div class="pick"><small>Prediction</small>${vip?'<b style="color:var(--gold)">🔒 VIP PICK</b>':`<b>${esc(p.prediction)}</b>`}</div>
+ <div class="pick"><small>Prediction</small>${vip&&!isVipMember()?'<b style="color:var(--gold)">🔒 VIP PICK</b>':`<b>${esc(p.prediction)}</b>`}</div>
  <div class="bar"><span>${nice(dateOnly(p.matchDate||p.date))}</span><span>${esc(time(p))}</span></div>
- ${vip?'<div class="lock">VIP selection protected · Join VIP to unlock.</div>':""}</article>`}).join(""):'<div class="empty">No predictions published for this date.</div>';
+ ${vip&&!isVipMember()?'<div class="lock">VIP selection protected · Login with an active VIP membership to unlock.</div>':vip?'<div class="unlock">✓ VIP MEMBER ACCESS · Full selection unlocked</div>':""}</article>`}).join(""):'<div class="empty">No predictions published for this date.</div>';
 }
 function renderR(){
  renderCalendar("r");$("rs").textContent=nice(selectedResult);
@@ -156,9 +164,13 @@ function renderR(){
 function platformIcon(platform){const letters={SportyBet:"SB",Bet9ja:"B9",MSport:"MS"};return letters[platform]||String(platform||"").slice(0,2).toUpperCase()}
 async function copyCode(code,button){try{await navigator.clipboard.writeText(code)}catch{const ta=document.createElement("textarea");ta.value=code;document.body.appendChild(ta);ta.select();document.execCommand("copy");ta.remove()}button.textContent="COPIED ✓";setTimeout(()=>button.textContent="COPY",1200)}
 function renderC(){
- const list=C.filter(c=>c.active!==false);
- $("codes").innerHTML=list.length?list.map(c=>`<article class="code"><div class="codeHead"><div class="bookIcon">${esc(platformIcon(c.platform))}</div><div><b>${esc(c.platform)}</b><div class="meta">${c.visibility==="vip"?"VIP CODE":"FREE CODE"}</div></div></div>
- <div class="codeValue"><code>${esc(c.code)}</code><button class="copy" data-copy="${esc(c.code)}">COPY</button></div>${c.note?`<p class="meta">${esc(c.note)}</p>`:""}</article>`).join(""):'<div class="empty">No active booking codes.</div>';
+ const vipMember=isVipMember();
+ const list=C.filter(c=>c.active!==false && (String(c.visibility||"free").toLowerCase()!=="vip" || vipMember));
+ $("codes").innerHTML=list.length?list.map(c=>{
+   const access=String(c.visibility||"free").toLowerCase();
+   return `<article class="code"><div class="codeHead"><div class="bookIcon">${esc(platformIcon(c.platform))}</div><div><b>${esc(c.platform)}</b><div class="meta">${access==="vip"?"VIP CODE":"FREE CODE"}</div></div></div>
+   <div class="codeValue"><code>${esc(c.code)}</code><button class="copy" data-copy="${esc(c.code)}">COPY</button></div>${c.note?`<p class="meta">${esc(c.note)}</p>`:""}</article>`;
+ }).join(""):(vipMember?' <div class="empty">No active booking codes are available right now.</div>':'<div class="empty">Only FREE booking codes are shown here. VIP booking codes are reserved for active VIP members.</div>');
  document.querySelectorAll("[data-copy]").forEach(b=>b.addEventListener("click",()=>copyCode(b.dataset.copy,b)));
 }
 
@@ -227,14 +239,6 @@ async function saveProfile(user,provider){
     createdAt:existing.createdAt||Date.now()
   });
 }
-onAuthStateChanged(auth,user=>{
-  if(user){
-    $("loginBtn").style.display="none"; $("signupBtn").style.display="none"; $("userMenu").style.display="flex";
-    $("userBadge").textContent=user.displayName||user.email||"Account";
-  }else{
-    $("loginBtn").style.display="inline-flex"; $("signupBtn").style.display="inline-flex"; $("userMenu").style.display="none";
-  }
-});
 $("predictionSearch").addEventListener("input",e=>{predictionSearch=e.target.value.trim();renderP()});
 $("predictionAccess").addEventListener("change",e=>{predictionAccess=e.target.value;renderP()});
 
@@ -243,7 +247,40 @@ $("rp").onclick=()=>{resMonth.setMonth(resMonth.getMonth()-1);renderR()};$("rn")
 $("rl").onclick=()=>{const a=P.filter(p=>p.resultPublished===true).sort((x,y)=>String(y.matchDate||y.date||"").localeCompare(String(x.matchDate||x.date||"")));if(a.length){selectedResult=dateOnly(a[0].matchDate||a[0].date);resMonth=new Date(selectedResult+"T12:00:00");renderR()}};
 onValue(ref(db,"predictions"),s=>{P=s.exists()?Object.entries(s.val()).map(([id,x])=>({id,...(x||{})})):[];renderP();renderR()},e=>{$("predGrid").innerHTML='<div class="empty">Unable to load predictions: '+esc(e?.message||"Database error")+'</div>'});
 onValue(ref(db,"events"),s=>{E=s.exists()?Object.entries(s.val()).map(([id,x])=>({id,...(x||{})})):[];$("eventCount").textContent=E.filter(e=>e.status!=="Archived").length;renderEvents()},e=>{console.error(e)});
-onValue(ref(db,"bookingCodes"),s=>{C=s.exists()?Object.entries(s.val()).map(([id,x])=>({id,...(x||{})})):[];renderC()},e=>{$("codes").innerHTML='<div class="empty">Unable to load booking codes: '+esc(e?.message||"Database error")+'</div>'});
+let freeCodesLoaded=false,vipCodesLoaded=false;
+function mergeCodes(list){
+ const map=new Map(C.map(x=>[x.id,x]));
+ list.forEach(x=>map.set(x.id,x));
+ C=[...map.values()];
+ renderC();
+}
+onValue(ref(db,"bookingCodes/free"),s=>{
+ freeCodesLoaded=true;
+ const list=s.exists()?Object.entries(s.val()).map(([id,x])=>({id,...(x||{}),visibility:"free"})):[];
+ mergeCodes(list);
+},e=>{$("codes").innerHTML='<div class="empty">Unable to load FREE booking codes: '+esc(e?.message||"Database error")+'</div>'});
+onAuthStateChanged(auth,async user=>{
+ currentUser=user||null;
+ currentProfile=null;
+ if(user){
+   $("loginBtn").style.display="none"; $("signupBtn").style.display="none"; $("userMenu").style.display="flex";
+   $("userBadge").textContent=user.displayName||user.email||"Account";
+   try{await new Promise(resolve=>onValue(ref(db,"users/"+user.uid),s=>{currentProfile=s.val()||{};resolve()}, {onlyOnce:true}));}
+   catch(e){console.error("Unable to load member profile",e);currentProfile={};}
+ }else{
+   $("loginBtn").style.display="inline-flex"; $("signupBtn").style.display="inline-flex"; $("userMenu").style.display="none";
+   C=C.filter(c=>String(c.visibility||"free").toLowerCase()!=="vip");
+   vipCodesLoaded=false;
+ }
+ if(isVipMember()&&!vipCodesLoaded){
+   onValue(ref(db,"bookingCodes/vip"),s=>{
+     vipCodesLoaded=true;
+     const list=s.exists()?Object.entries(s.val()).map(([id,x])=>({id,...(x||{}),visibility:"vip"})):[];
+     mergeCodes(list);
+   },e=>console.error("Unable to load VIP booking codes",e));
+ }
+ renderC();
+});
 renderP();renderR();renderC();
 </script>
 </body>
