@@ -203,6 +203,14 @@ input:focus,select:focus,textarea:focus{border-color:var(--green);box-shadow:0 0
             <option value="disabled">Disabled</option>
           </select>
         </div>
+
+        <div class="field">
+          <label>Membership Access</label>
+          <select id="umembership">
+            <option value="free">FREE Member</option>
+            <option value="vip">VIP Member</option>
+          </select>
+        </div>
       </form>
 
       <div class="actions">
@@ -222,20 +230,21 @@ input:focus,select:focus,textarea:focus{border-color:var(--green);box-shadow:0 0
             <th>Country</th>
             <th>Role</th>
             <th>Status</th>
+            <th>Membership</th>
             <th>Online</th>
             <th>Joined</th>
             <th>Actions</th>
           </tr>
         </thead>
         <tbody id="utbl">
-          <tr><td colspan="10" class="empty">Loading users...</td></tr>
+          <tr><td colspan="11" class="empty">Loading users...</td></tr>
         </tbody>
       </table>
     </div>
   </div>
 </section>
 <section id="codes" class="tab">
-<div class="panel"><h2 id="codeFormTitle">Create Booking Code</h2><p>Separate public FREE codes from protected VIP codes.</p>
+<div class="panel"><h2 id="codeFormTitle">Create Booking Code</h2><p>FREE codes are public. VIP codes are stored separately and are only delivered to active VIP members on the public site.</p>
 <form id="cf" class="form">
 <input type="hidden" id="cid">
 <div class="field"><label>Platform</label><select id="platform"><option>SportyBet</option><option>Bet9ja</option><option>MSport</option></select></div>
@@ -386,13 +395,14 @@ function renderUsers(){
       <td>${esc(u.country||'—')}</td>
       <td><span class="pill ${u.role==='admin'?'py':'pg'}">${esc(u.role||'user')}</span></td>
       <td><span class="pill ${u.status==='disabled'?'pr':'pg'}">${esc(u.status||'active')}</span></td>
+      <td><span class="pill ${String(u.membership||u.plan||'free').toLowerCase()==='vip'?'py':'pg'}">${String(u.membership||u.plan||'free').toLowerCase()==='vip'?'VIP':'FREE'}</span></td>
       <td>${bool(u.online)?'<span class="pill pg">Online</span>':'<span class="pill py">Offline</span>'}</td>
       <td>${formatDate(u.createdAt)}</td>
       <td>
         <button class=btn data-action="edit-user" data-id="${esc(u.id)}">Edit</button>
         <button class="btn danger" data-action="delete-user" data-id="${esc(u.id)}">Delete</button>
       </td>
-    </tr>`).join(''):'<tr><td colspan=10 class=empty>No users found.</td></tr>';
+    </tr>`).join(''):'<tr><td colspan=11 class=empty>No users found.</td></tr>';
 }
 
 async function safeWrite(action,label){
@@ -487,8 +497,19 @@ window.saveCode=async()=>{
   };
   if(!d.code)return toast('Enter booking code.');
   await safeWrite(async()=>{
-    if(id)await update(ref(db,'bookingCodes/'+id),d);
-    else await set(push(ref(db,'bookingCodes')),{...d,createdAt:Date.now()});
+    const access=d.visibility==='vip'?'vip':'free';
+    if(id){
+      const old=C.find(x=>x.id===id);
+      const oldPath=old?old._path:('bookingCodes/'+access+'/'+id);
+      if(oldPath!=='bookingCodes/'+access+'/'+id){
+        await set(ref(db,'bookingCodes/'+access+'/'+id),d);
+        await remove(ref(db,oldPath));
+      }else{
+        await update(ref(db,oldPath),d);
+      }
+    }else{
+      await set(push(ref(db,'bookingCodes/'+access)),{...d,createdAt:Date.now()});
+    }
     clearCode();
   },id?'Code updated.':'Code saved.');
 };
@@ -503,7 +524,7 @@ window.editCode=id=>{
 
 window.deleteCode=async id=>{
   if(!confirm('Delete booking code?')){toast('Booking code deletion cancelled.','warning');return;}
-  await safeWrite(()=>remove(ref(db,'bookingCodes/'+id)),'Code deleted.');
+  await safeWrite(()=>remove(ref(db,C.find(x=>x.id===id)?._path||('bookingCodes/'+id))),'Code deleted.');
 };
 
 window.clearCode=()=>{$('cf').reset();$('cid').value=''};
@@ -519,6 +540,8 @@ window.saveUser=async()=>{
     country:$('ucountry').value.trim(),
     role:$('urole').value,
     status:$('ustatus').value,
+    membership:$('umembership').value,
+    vip:$('umembership').value==='vip',
     updatedAt:Date.now()
   };
   const password=$('upassword').value;
@@ -556,6 +579,7 @@ window.editUser=id=>{
   $('ucountry').value=u.country||'';
   $('urole').value=u.role||'user';
   $('ustatus').value=u.status||'active';
+  $('umembership').value=(String(u.membership||u.plan||u.vipStatus||'free').toLowerCase()==='vip'||u.vip===true||String(u.vip).toLowerCase()==='true')?'vip':'free';
   $('upassword').value='';
   showTab('users');
   window.scrollTo({top:0,behavior:'smooth'});
@@ -576,6 +600,7 @@ window.clearUser=()=>{
   $('upassword').value='';
   $('urole').value='user';
   $('ustatus').value='active';
+  $('umembership').value='free';
 };
 
 document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>{
@@ -637,10 +662,41 @@ onValue(ref(db,'predictions'),s=>{
   renderPreds();renderResults();
 },err=>{console.error(err);toast('Predictions read failed: '+err.message)});
 
-onValue(ref(db,'bookingCodes'),s=>{
-  C=s.exists()?Object.entries(s.val()).map(([id,x])=>({id,...(x||{})})):[];
-  $('sc').textContent=C.length;renderCodes();
-},err=>{console.error(err);toast('Booking codes read failed: '+err.message)});
+let codeMap=new Map();
+function refreshCodes(){
+  C=[...codeMap.values()];
+  $('sc').textContent=C.length;
+  renderCodes();
+}
+onValue(ref(db,'bookingCodes/free'),s=>{
+  for(const [id] of [...codeMap]){if(codeMap.get(id)?._path==='bookingCodes/free/'+id)codeMap.delete(id)}
+  if(s.exists())Object.entries(s.val()).forEach(([id,x])=>codeMap.set(id,{id,...(x||{}),visibility:'free',_path:'bookingCodes/free/'+id}));
+  refreshCodes();
+},err=>{console.error(err);toast('FREE booking codes read failed: '+err.message,'error')});
+onValue(ref(db,'bookingCodes/vip'),s=>{
+  for(const [id] of [...codeMap]){if(codeMap.get(id)?._path==='bookingCodes/vip/'+id)codeMap.delete(id)}
+  if(s.exists())Object.entries(s.val()).forEach(([id,x])=>codeMap.set(id,{id,...(x||{}),visibility:'vip',_path:'bookingCodes/vip/'+id}));
+  refreshCodes();
+},err=>{console.error(err);toast('VIP booking codes read failed: '+err.message,'error')});
+// Safe migration for legacy flat booking-code records only.
+// Never treats the new /free and /vip containers as legacy codes.
+onValue(ref(db,'bookingCodes'),async s=>{
+  if(!s.exists())return;
+  const legacy=Object.entries(s.val()).filter(([id,x])=>x&&typeof x==='object'&&(Object.prototype.hasOwnProperty.call(x,'code')||Object.prototype.hasOwnProperty.call(x,'platform')));
+  if(!legacy.length)return;
+  for(const [id,x] of legacy){
+    const d={...(x||{})};
+    const access=String(d.visibility||'free').toLowerCase()==='vip'?'vip':'free';
+    try{
+      await set(ref(db,'bookingCodes/'+access+'/'+id),{...d,visibility:access});
+      await remove(ref(db,'bookingCodes/'+id));
+      toast(`Legacy ${access.toUpperCase()} booking code migrated.`, 'info');
+    }catch(err){
+      console.error('Booking code migration failed',id,err);
+      toast('Could not migrate an older booking code. Check database rules.','error');
+    }
+  }
+});
 
 onValue(ref(db,'users'),s=>{
   U=s.exists()?Object.entries(s.val()).map(([id,x])=>({id,...(x||{})})):[];
