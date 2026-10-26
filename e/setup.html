@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#f4f7ff"><title>Mail Studio — One-time Admin Setup</title>
+<style>
+*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;padding:22px;background:linear-gradient(135deg,#f6f8ff,#edf8ff 55%,#f8f5ff);font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;color:#18233f}.card{width:min(100%,560px);background:white;border:1px solid #e3e9f5;border-radius:24px;padding:clamp(22px,5vw,38px);box-shadow:0 22px 70px #24365b12}.logo{width:52px;height:52px;border-radius:17px;display:grid;place-items:center;background:linear-gradient(135deg,#5a68f5,#8b5cf6);color:white;font-size:25px;box-shadow:0 8px 20px #6d65f340}h1{font-size:25px;margin:18px 0 8px;letter-spacing:-.7px}.muted{font-size:13px;line-height:1.65;color:#73809b}label{display:block;font-size:12px;font-weight:750;color:#4c5873;margin:16px 0 7px}input{width:100%;padding:13px;border:1px solid #d8e0ef;border-radius:11px;background:#fbfcff;font:inherit;font-size:14px;outline:none}input:focus{border-color:#7b7df5;box-shadow:0 0 0 3px #7778f51c}button{width:100%;border:0;border-radius:11px;background:linear-gradient(135deg,#5b67ef,#7958e9);color:white;padding:13px;font-weight:800;font-size:14px;margin-top:20px;cursor:pointer}button:disabled{opacity:.5;cursor:not-allowed}.warning{background:#fff7e4;border:1px solid #f0dfa9;color:#77571c;border-radius:12px;padding:12px 14px;font-size:12px;line-height:1.6;margin:18px 0}.status{font-size:13px;line-height:1.6;white-space:pre-wrap;margin-top:14px;color:#53617c}.success{color:#17794e}.foot{font-size:11px;color:#8a95a9;margin-top:22px}
+</style></head><body><main class="card"><div class="logo">✉</div><h1>One-time administrator setup</h1><p class="muted">Create the first Mail Studio administrator account. This setup page works even if the Realtime Database already contains admin records, provided the one-time setup lock has not yet been set.</p>
+<div class="warning"><strong>Important:</strong> Publish the temporary setup rules from <code>database.rules.json</code> first. This page locks further setup in Firebase after the first successful setup. Then immediately publish the secure production rules described in the README and delete <code>setup.html</code> from your deployed website.</div>
+<form id="setupForm"><label for="name">Administrator display name</label><input id="name" maxlength="100" placeholder="Mail Studio Administrator" autocomplete="name" required><label for="email">Administrator email</label><input id="email" type="email" placeholder="admin@example.com" autocomplete="email" required><label for="password">Password (at least 12 characters)</label><input id="password" type="password" minlength="12" autocomplete="new-password" required><label for="confirm">Confirm password</label><input id="confirm" type="password" minlength="12" autocomplete="new-password" required><button id="submit" type="submit">Create administrator and lock setup</button></form><div class="status" id="status" role="status" aria-live="polite"></div><div class="foot">Mail Studio · Keep this page private during setup. Never share the administrator password.</div></main>
+<script type="module">
+import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
+import {getAuth,createUserWithEmailAndPassword,updateProfile,signOut} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
+import {getDatabase,ref,get,set,runTransaction} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js';
+import {firebaseConfig} from './config.js';
+const $=id=>document.getElementById(id);let busy=false;
+const app=initializeApp(firebaseConfig);const auth=getAuth(app);const db=getDatabase(app);
+$('setupForm').addEventListener('submit',async e=>{
+ e.preventDefault();if(busy)return;
+ const name=$('name').value.trim(),email=$('email').value.trim(),password=$('password').value,confirm=$('confirm').value;
+ if(password.length<12){$('status').textContent='Use a password with at least 12 characters.';return}
+ if(password!==confirm){$('status').textContent='The passwords do not match.';return}
+ busy=true;$('submit').disabled=true;$('status').textContent='Checking the one-time setup lock…';
+ let user=null;
+ try{
+  const lock=await get(ref(db,'setupComplete'));
+  if(lock.val()===true)throw new Error('One-time setup has already been completed. Delete setup.html and sign in through index.html.');
+  $('status').textContent='Creating administrator account…';
+  const credential=await createUserWithEmailAndPassword(auth,email,password);user=credential.user;
+  await updateProfile(user,{displayName:name});
+  $('status').textContent='Registering administrator and locking setup…';
+  await set(ref(db,'admins/'+user.uid),true);
+  const result=await runTransaction(ref(db,'setupComplete'),current=>current===true?undefined:true,{applyLocally:false});
+  if(!result.committed){
+    await set(ref(db,'admins/'+user.uid),null);
+    throw new Error('Another setup session completed first. This account was not granted administrator access.');
+  }
+  $('status').className='status success';
+  $('status').textContent='Administrator setup completed successfully.\\n\\nAdministrator: '+email+'\\nUID: '+user.uid+'\\n\\nNow do all of the following:\\n1. Publish the secure production database rules in README.md.\\n2. Delete setup.html from your hosting project and redeploy.\\n3. Open index.html and sign in with this account.';
+  $('setupForm').reset();$('setupForm').classList.add('hidden');
+  await signOut(auth);
+ }catch(err){
+  $('status').className='status';
+  let msg=err?.message||String(err);
+  if(err?.code==='auth/email-already-in-use')msg='This email already has a Firebase Authentication account. Use a different email for this one-time setup, or sign in through the main website if that account is already an authorized admin.';
+  if(err?.code==='PERMISSION_DENIED'||err?.code==='database/permission-denied')msg='Firebase rejected the setup write. Check that the temporary bootstrap rules from database.rules.json are published and setupComplete is not already true.';
+  $('status').textContent=msg;
+ }finally{busy=false;$('submit').disabled=false}
+});
+</script></body></html>
